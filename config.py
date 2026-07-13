@@ -10,8 +10,6 @@ SITE_ID = os.getenv("SITE_ID")
 
 DRIVE_ID = os.getenv("DRIVE_ID")
 
-FILE_PATH = os.getenv("FILE_PATH")
-
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 SHAREPOINT_FOLDER = os.getenv("SHAREPOINT_FOLDER")
