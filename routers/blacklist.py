@@ -1,31 +1,34 @@
 from fastapi import APIRouter
+import traceback
 
 from services.blacklist_service import search_blacklist
-
 from services.openai_service import explain_result
 
-router=APIRouter()
+router = APIRouter()
+
 
 @router.post("/blacklist")
+def blacklist(data: dict):
 
-def blacklist(data:dict):
+    try:
 
-    result=search_blacklist(
+        result = search_blacklist(
+            name=data.get("name"),
+            nrc=data.get("nrc")
+        )
 
-        name=data.get("name"),
+        explanation = explain_result(result)
 
-        nrc=data.get("nrc")
+        return {
+            "matched": len(result) > 0,
+            "records": result,
+            "ai_summary": explanation
+        }
 
-    )
+    except Exception as e:
 
-    explanation=explain_result(result)
+        traceback.print_exc()
 
-    return{
-
-        "matched":len(result)>0,
-
-        "records":result,
-
-        "ai_summary":explanation
-
-    }
+        return {
+            "error": str(e)
+        }
