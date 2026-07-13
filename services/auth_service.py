@@ -14,9 +14,9 @@ def get_graph_token():
 
     response = requests.post(url, data=data)
 
-    print(response.status_code)
     print(response.text)
 
-    response.raise_for_status()
+    if response.status_code != 200:
+        raise Exception(response.text)
 
     return response.json()["access_token"]
