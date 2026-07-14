@@ -6,7 +6,6 @@ from services.openai_service import explain_result
 
 router = APIRouter()
 
-
 @router.post("/blacklist")
 def blacklist(data: dict):
 
@@ -30,5 +29,7 @@ def blacklist(data: dict):
         traceback.print_exc()
 
         return {
-            "error": str(e)
+            "error": str(e),
+            "type": type(e).__name__,
+            "traceback": traceback.format_exc()
         }
