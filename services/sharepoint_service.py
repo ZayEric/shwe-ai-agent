@@ -25,6 +25,9 @@ def load_blacklist():
     )
 
     response = requests.get(list_url, headers=headers)
+    print("Listing SharePoint files...")
+    print(response.status_code)
+    print(response.text)
 
     response.raise_for_status()
 
@@ -33,7 +36,7 @@ def load_blacklist():
     # -------------------------------------
     # Step 2 : Keep only Excel files
     # -------------------------------------
-
+    print("Reading Excel...")
     excel_files = []
 
     for f in files:
