@@ -1,26 +1,38 @@
-from openai import OpenAI
+from openai import AzureOpenAI
+
 from config import *
 
-client=OpenAI(api_key=OPENAI_API_KEY)
+client = AzureOpenAI(
+    api_key=AZURE_OPENAI_KEY,
+    api_version=AZURE_OPENAI_API_VERSION,
+    azure_endpoint=AZURE_OPENAI_ENDPOINT
+)
+
 
 def explain_result(search_result):
 
-    prompt=f"""
+    prompt = f"""
+You are an AML Compliance Officer.
 
-You are an AML Officer.
-
-Explain this blacklist result.
+Explain this blacklist screening result.
 
 {search_result}
 
+Provide:
+1. Match summary
+2. Risk level
+3. Recommendation
 """
 
-    response=client.responses.create(
-
-        model="gpt-5.5",
-
-        input=prompt
-
+    response = client.chat.completions.create(
+        model=AZURE_OPENAI_DEPLOYMENT,
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=0.2
     )
 
-    return response.output_text
+    return response.choices[0].message.content
