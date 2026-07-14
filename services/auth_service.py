@@ -16,6 +16,7 @@ def get_graph_token():
     response = requests.post(url, data=data)
 
     print(response.text)
+    print(response.status_code)
 
     if response.status_code != 200:
         raise Exception(response.text)
