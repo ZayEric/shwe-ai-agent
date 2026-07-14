@@ -2,6 +2,13 @@ from openai import AzureOpenAI
 
 from config import *
 
+print("=== Azure OpenAI Configuration ===")
+print("Endpoint:", repr(AZURE_OPENAI_ENDPOINT))
+print("Deployment:", repr(AZURE_OPENAI_DEPLOYMENT))
+print("API Version:", repr(AZURE_OPENAI_API_VERSION))
+print("Key exists:", AZURE_OPENAI_KEY is not None)
+print("=================================")
+
 client = AzureOpenAI(
     api_key=AZURE_OPENAI_KEY,
     api_version=AZURE_OPENAI_API_VERSION,
