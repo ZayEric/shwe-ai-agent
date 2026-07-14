@@ -12,6 +12,7 @@ def get_graph_token():
         "grant_type": "client_credentials"
     }
 
+    print("Getting Graph token...")
     response = requests.post(url, data=data)
 
     print(response.text)
