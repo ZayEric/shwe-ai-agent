@@ -23,7 +23,9 @@ Provide:
 2. Risk level
 3. Recommendation
 """
-
+    print(AZURE_OPENAI_ENDPOINT)
+    print(AZURE_OPENAI_DEPLOYMENT)
+    print("Calling Azure OpenAI...")
     response = client.chat.completions.create(
         model=AZURE_OPENAI_DEPLOYMENT,
         messages=[
