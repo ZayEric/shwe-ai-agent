@@ -1,11 +1,10 @@
-from openai import AzureOpenAI
+from openai import OpenAI
 
 from config import *
 
-client = AzureOpenAI(
+client = OpenAI(
     api_key=AZURE_OPENAI_KEY,
-    api_version=AZURE_OPENAI_API_VERSION,
-    azure_endpoint=AZURE_OPENAI_ENDPOINT
+    base_url=os.getenv("AZURE_OPENAI_ENDPOINT")
 )
 
 
