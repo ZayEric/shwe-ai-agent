@@ -1,45 +1,36 @@
 from openai import OpenAI
-
 from config import *
 
+print("===== Foundry Configuration =====")
+print("Endpoint:", AZURE_OPENAI_ENDPOINT)
+print("Deployment:", AZURE_OPENAI_DEPLOYMENT)
+print("API Key Exists:", AZURE_OPENAI_KEY is not None)
+print("================================")
+
 client = OpenAI(
+    base_url=AZURE_OPENAI_ENDPOINT,
     api_key=AZURE_OPENAI_KEY,
-    base_url=os.getenv("AZURE_OPENAI_ENDPOINT")
 )
 
 
 def explain_result(search_result):
-    print("========== Azure Config ==========")
-    print("Endpoint:", repr(AZURE_OPENAI_ENDPOINT))
-    print("Deployment:", repr(AZURE_OPENAI_DEPLOYMENT))
-    print("API Version:", repr(AZURE_OPENAI_API_VERSION))
-    print("Key exists:", AZURE_OPENAI_KEY is not None)
-    print("==================================")
+
     prompt = f"""
-    You are an AML Compliance Officer.
-    
-    Explain this blacklist screening result.
-    
-    {search_result}
-    
-    Provide:
-    1. Match summary
-    2. Risk level
-    3. Recommendation
-    """
-    print(AZURE_OPENAI_ENDPOINT)
-    print(AZURE_OPENAI_DEPLOYMENT)
-    print(client.base_url)
-    print("Calling Azure OpenAI...")
+You are an AML Compliance Officer.
+
+Explain this blacklist screening result.
+
+{search_result}
+
+Provide:
+1. Match summary
+2. Risk level
+3. Recommendation
+"""
+
     response = client.responses.create(
         model=AZURE_OPENAI_DEPLOYMENT,
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        temperature=0.2
+        input=prompt,
     )
 
-    return response.choices[0].message.content
+    return response.output_text
