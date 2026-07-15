@@ -1,35 +1,29 @@
-from fastapi import APIRouter
-import traceback
-
-from services.blacklist_service import search_blacklist
-from services.openai_service import explain_result
-
-router = APIRouter()
-
 @router.post("/blacklist")
 def blacklist(data: dict):
 
-    try:
+    print("Incoming JSON:", data)
 
-        result = search_blacklist(
-            name=data.get("name"),
-            nrc=data.get("nrc")
-        )
+    name = data.get("name")
+    nrc = data.get("nrc")
 
-        explanation = explain_result(result)
+    print("Name:", repr(name))
+    print("NRC:", repr(nrc))
 
-        return {
-            "matched": len(result) > 0,
-            "records": result,
-            "ai_summary": explanation
-        }
+    result = search_blacklist(name=name, nrc=nrc)
 
-    except Exception as e:
+    print("Search Result:", result)
 
-        traceback.print_exc()
+    if result is None:
+        result = []
 
-        return {
-            "error": str(e),
-            "type": type(e).__name__,
-            "traceback": traceback.format_exc()
-        }
+    explanation = (
+        explain_result(result)
+        if result
+        else "No blacklist match found."
+    )
+
+    return {
+        "matched": len(result) > 0,
+        "records": result,
+        "ai_summary": explanation
+    }
