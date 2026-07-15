@@ -2,13 +2,6 @@ from openai import AzureOpenAI
 
 from config import *
 
-print("=== Azure OpenAI Configuration ===")
-print("Endpoint:", repr(AZURE_OPENAI_ENDPOINT))
-print("Deployment:", repr(AZURE_OPENAI_DEPLOYMENT))
-print("API Version:", repr(AZURE_OPENAI_API_VERSION))
-print("Key exists:", AZURE_OPENAI_KEY is not None)
-print("=================================")
-
 client = AzureOpenAI(
     api_key=AZURE_OPENAI_KEY,
     api_version=AZURE_OPENAI_API_VERSION,
@@ -17,19 +10,24 @@ client = AzureOpenAI(
 
 
 def explain_result(search_result):
-
+    print("========== Azure Config ==========")
+    print("Endpoint:", repr(AZURE_OPENAI_ENDPOINT))
+    print("Deployment:", repr(AZURE_OPENAI_DEPLOYMENT))
+    print("API Version:", repr(AZURE_OPENAI_API_VERSION))
+    print("Key exists:", AZURE_OPENAI_KEY is not None)
+    print("==================================")
     prompt = f"""
-You are an AML Compliance Officer.
-
-Explain this blacklist screening result.
-
-{search_result}
-
-Provide:
-1. Match summary
-2. Risk level
-3. Recommendation
-"""
+    You are an AML Compliance Officer.
+    
+    Explain this blacklist screening result.
+    
+    {search_result}
+    
+    Provide:
+    1. Match summary
+    2. Risk level
+    3. Recommendation
+    """
     print(AZURE_OPENAI_ENDPOINT)
     print(AZURE_OPENAI_DEPLOYMENT)
     print("Calling Azure OpenAI...")
