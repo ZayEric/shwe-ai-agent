@@ -30,6 +30,7 @@ def explain_result(search_result):
     """
     print(AZURE_OPENAI_ENDPOINT)
     print(AZURE_OPENAI_DEPLOYMENT)
+    print(client.base_url)
     print("Calling Azure OpenAI...")
     response = client.chat.completions.create(
         model=AZURE_OPENAI_DEPLOYMENT,
