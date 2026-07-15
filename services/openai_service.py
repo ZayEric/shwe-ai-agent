@@ -4,7 +4,14 @@ from config import *
 print("===== Foundry Configuration =====")
 print("Endpoint:", AZURE_OPENAI_ENDPOINT)
 print("Deployment:", AZURE_OPENAI_DEPLOYMENT)
-print("API Key Exists:", AZURE_OPENAI_KEY is not None)
+
+if AZURE_OPENAI_KEY:
+    print("Key Length:", len(AZURE_OPENAI_KEY))
+    print("Key Prefix:", AZURE_OPENAI_KEY[:10])
+    print("Key Suffix:", AZURE_OPENAI_KEY[-10:])
+else:
+    print("No key!")
+
 print("================================")
 
 client = OpenAI(
