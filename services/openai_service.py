@@ -46,7 +46,7 @@ def explain_result(search_result):
     
     Screening Result
     
-    {results}
+    {search_result}
     """
 
     response = client.responses.create(
