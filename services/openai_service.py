@@ -23,17 +23,31 @@ client = OpenAI(
 def explain_result(search_result):
 
     prompt = f"""
-You are an AML Compliance Officer.
-
-Explain this blacklist screening result.
-
-{search_result}
-
-Provide:
-1. Match summary
-2. Risk level
-3. Recommendation
-"""
+    You are an Anti-Money Laundering Compliance Assistant.
+    
+    The screening engine has already completed deterministic matching.
+    
+    Do NOT determine whether a customer is matched.
+    Do NOT change the risk level.
+    
+    Use the information below only to prepare an executive compliance summary.
+    
+    Return:
+    
+    1. Executive Summary
+    
+    2. Interpretation
+    
+    3. Business Impact
+    
+    4. Recommended Next Actions
+    
+    5. Compliance Notes
+    
+    Screening Result
+    
+    {results}
+    """
 
     response = client.responses.create(
         model=AZURE_OPENAI_DEPLOYMENT,
