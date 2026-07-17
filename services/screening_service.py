@@ -14,42 +14,30 @@ def run_screening():
     start = time.time()
 
     blacklist = get_blacklist()
-
     wallet = get_wallet()
-
     ibmb = get_ibmb()
 
     results = []
 
     wallet_matches = 0
-
     ibmb_matches = 0
 
     for _, customer in blacklist.iterrows():
 
-        result = match_customer(
-            customer,
-            wallet,
-            ibmb
-        )
+        result = match_customer(customer, wallet, ibmb)
 
         if result["wallet"]:
-
             wallet_matches += 1
 
         if result["ibmb"]:
-
             ibmb_matches += 1
 
         if result["wallet"] or result["ibmb"]:
-
             results.append(result)
 
     execution_time = round(time.time() - start, 2)
 
-    ai_summary = explain_result(results)
-
-    return {
+    response = {
 
         "screening_date": datetime.utcnow().isoformat(),
 
@@ -63,8 +51,10 @@ def run_screening():
 
         "execution_time_seconds": execution_time,
 
-        "records": results,
-
-        "ai_summary": ai_summary
+        "records": results
 
     }
+
+    response["ai_summary"] = explain_result(response)
+
+    return response
