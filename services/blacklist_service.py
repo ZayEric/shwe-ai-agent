@@ -1,19 +1,25 @@
 from services.sharepoint_service import load_blacklist
+import numpy as np
 
-def search_blacklist(name=None,nrc=None):
+def search_blacklist(name=None, nrc=None):
 
     df = load_blacklist()
 
-    if name:
+    print(df.columns.tolist())
 
-        result=df[df["Name"].str.contains(name,case=False,na=False)]
+    if name:
+        result = df[df["Name"].astype(str).str.contains(name, case=False, na=False)]
 
     elif nrc:
-
-        result=df[df["NRC"]==nrc]
+        result = df[df["NRC/Company Registration No"].astype(str) == str(nrc)]
 
     else:
+        return []
 
-        return None
+    print("Matched rows:")
+    print(result)
+
+    print("As dict:")
+    print(result.to_dict("records"))
 
     return result.to_dict("records")
