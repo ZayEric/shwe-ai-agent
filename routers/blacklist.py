@@ -9,19 +9,14 @@ router = APIRouter()
 
 @router.post("/blacklist")
 def blacklist(data: dict):
-
-    print("========== VERSION 17 JULY ==========")
-    print("Incoming JSON:", data)
-
-    print("Keys:", list(data.keys()))
-    name = data.get("Name")
-    print("Retrieved Name:", name)
-    
+   
     try:
+
+        print("========== VERSION 17 JULY ==========")
         print("Incoming JSON:", data)
 
-        name = data.get("name")
-        nrc = data.get("nrc")
+        name = data.get("Name") or data.get("name")
+        nrc = data.get("NRC") or data.get("nrc")
 
         print("Name:", repr(name))
         print("NRC:", repr(nrc))
@@ -29,9 +24,6 @@ def blacklist(data: dict):
         result = search_blacklist(name=name, nrc=nrc)
 
         print("Search Result:", result)
-
-        if result is None:
-            result = []
 
         if result:
             explanation = explain_result(result)
@@ -45,7 +37,6 @@ def blacklist(data: dict):
         }
 
     except Exception as e:
-
         traceback.print_exc()
 
         return {
