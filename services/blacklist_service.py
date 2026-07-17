@@ -10,6 +10,16 @@ def search_blacklist(name=None, nrc=None):
     print(df["Name"].tolist()[:10])
     print(df["Name"].dtype)
 
+    df["Name"] = (
+        df["Name"]
+        .fillna("")
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+    name = name.strip().upper()
+
     if name:
         result = df[df["Name"].astype(str).str.contains(name, case=False, na=False)]
 
