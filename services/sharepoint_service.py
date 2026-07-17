@@ -12,7 +12,7 @@ def load_excel(file_pattern):
     token = get_graph_token()
 
     headers = {
-        "Authorization": f"Bearer {token}
+        "Authorization": f"Bearer {token}"
     }
 
     list_url = (
