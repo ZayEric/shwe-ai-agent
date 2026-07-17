@@ -1,4 +1,11 @@
-@router.post("/screen")
-def screen_customer(data: dict):
+from fastapi import APIRouter
 
-    return screening_service.screen_customer(data)
+from services.screening_service import run_screening
+
+router = APIRouter()
+
+
+@router.post("/screening")
+def screening():
+
+    return run_screening()
