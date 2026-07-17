@@ -1,22 +1,48 @@
-def screen_customer(data):
+from repositories.blacklist_repository import get_blacklist
+from repositories.wallet_repository import get_wallet
+from repositories.ibmb_repository import get_ibmb
 
-    blacklist = blacklist_repository.load()
+from services.matching_service import match_customer
 
-    wallet = wallet_repository.load()
+from services.openai_service import explain_result
 
-    ibmb = ibmb_repository.load()
 
-    result = matching_service.compare(
-        blacklist,
-        wallet,
-        ibmb,
-        data
-    )
+def run_screening():
 
-    summary = openai_service.explain_result(result)
+    blacklist = get_blacklist()
+
+    wallet = get_wallet()
+
+    ibmb = get_ibmb()
+
+    results = []
+
+    for _, customer in blacklist.iterrows():
+
+        result = match_customer(
+
+            customer,
+
+            wallet,
+
+            ibmb
+
+        )
+
+        if result["wallet"] or result["ibmb"]:
+
+            results.append(result)
+
+    ai_summary = explain_result(results)
 
     return {
-        "matched": True,
-        "summary": summary,
-        "records": result
+
+        "total_blacklist": len(blacklist),
+
+        "matched": len(results),
+
+        "records": results,
+
+        "ai_summary": ai_summary
+
     }
