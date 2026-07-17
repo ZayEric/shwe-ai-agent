@@ -5,6 +5,9 @@ def search_blacklist(name=None, nrc=None):
 
     df = load_blacklist()
 
+    # Replace NaN/Infinity with None
+    df = df.replace([np.nan, np.inf, -np.inf], None)
+
     print(df.columns.tolist())
     print(df.head(10))
     print(df["Name"].tolist()[:10])
