@@ -6,6 +6,9 @@ def search_blacklist(name=None, nrc=None):
     df = load_blacklist()
 
     print(df.columns.tolist())
+    print(df.head(10))
+    print(df["Name"].tolist()[:10])
+    print(df["Name"].dtype)
 
     if name:
         result = df[df["Name"].astype(str).str.contains(name, case=False, na=False)]
