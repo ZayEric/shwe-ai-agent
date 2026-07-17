@@ -23,30 +23,30 @@ client = OpenAI(
 def explain_result(search_result):
 
     prompt = f"""
-    You are an Anti-Money Laundering Compliance Assistant.
+    You are an AML Compliance Officer.
     
     The screening engine has already completed deterministic matching.
     
-    Do NOT determine whether a customer is matched.
-    Do NOT change the risk level.
+    Summary
     
-    Use the information below only to prepare an executive compliance summary.
+    Total Blacklist Records : {screening_result["total_blacklist"]}
     
-    Return:
+    Wallet Matches : {screening_result["wallet_matches"]}
+    
+    IBMB Matches : {screening_result["ibmb_matches"]}
+    
+    Total Matches : {screening_result["total_matches"]}
+    
+    Matched Records
+    
+    {screening_result["records"]}
+    
+    Generate:
     
     1. Executive Summary
-    
-    2. Interpretation
-    
-    3. Business Impact
-    
-    4. Recommended Next Actions
-    
-    5. Compliance Notes
-    
-    Screening Result
-    
-    {search_result}
+    2. Risk Interpretation
+    3. Compliance Recommendation
+    4. Next Actions
     """
 
     response = client.responses.create(
