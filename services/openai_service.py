@@ -29,17 +29,17 @@ def explain_result(search_result):
     
     Summary
     
-    Total Blacklist Records : {screening_result["total_blacklist"]}
+    Total Blacklist Records : {search_result["total_blacklist"]}
     
-    Wallet Matches : {screening_result["wallet_matches"]}
+    Wallet Matches : {search_result["wallet_matches"]}
     
-    IBMB Matches : {screening_result["ibmb_matches"]}
+    IBMB Matches : {search_result["ibmb_matches"]}
     
-    Total Matches : {screening_result["total_matches"]}
+    Total Matches : {search_result["total_matches"]}
     
     Matched Records
     
-    {screening_result["records"]}
+    {search_result["records"]}
     
     Generate:
     
