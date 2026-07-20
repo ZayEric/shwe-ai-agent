@@ -23,83 +23,95 @@ class CustomerInsightService:
     # Main Analysis
     ###########################################################
 
-    def analyze(self):
+def analyze(self):
 
-        documents = self.loader.load_all()
+    documents = self.loader.load_all()
 
-        ##############################################
-        # Summaries
-        ##############################################
+    ##################################################
+    # Summaries
+    ##################################################
+
+    facebook_summary = {}
+
+    if documents["facebook"]:
 
         facebook_summary = FacebookService(
             documents["facebook"]
         ).summarize()
 
-        competitor_summary = CompetitorService(
-            documents["competitor"]
-        ).summarize()
+    competitor_summary = CompetitorService(
+        documents["competitor"]
+    ).summarize()
+
+    wallet_summary = {}
+
+    if not documents["wallet"].empty:
 
         wallet_summary = WalletService(
             documents["wallet"]
         ).summarize()
 
+    ibmb_summary = {}
+
+    if not documents["ibmb"].empty:
+
         ibmb_summary = IBMBService(
             documents["ibmb"]
         ).summarize()
 
-        customer_summary = self._customer_summary(
-            documents["customer"]
-        )
+    customer_summary = self._customer_summary(
+        documents["customer"]
+    )
 
-        campaign_summary = self._campaign_summary(
-            documents["campaign"]
-        )
+    campaign_summary = self._campaign_summary(
+        documents["campaign"]
+    )
 
-        playstore_summary = documents["playstore"]
+    playstore_summary = documents["playstore"]
 
-        ##############################################
-        # Build Prompt
-        ##############################################
+    ##################################################
+    # Build Prompt
+    ##################################################
 
-        system_prompt = self._load_prompt()
+    system_prompt = self._load_prompt()
 
-        user_prompt = self._build_prompt(
+    user_prompt = self._build_prompt(
 
-            facebook_summary,
+        facebook_summary,
 
-            playstore_summary,
+        playstore_summary,
 
-            wallet_summary,
+        wallet_summary,
 
-            ibmb_summary,
+        ibmb_summary,
 
-            customer_summary,
+        customer_summary,
 
-            campaign_summary,
+        campaign_summary,
 
-            competitor_summary
+        competitor_summary
 
-        )
+    )
 
-        ##############################################
-        # Azure OpenAI
-        ##############################################
+    ##################################################
+    # Azure OpenAI
+    ##################################################
 
-        response = generate_customer_insight(
+    response = generate_customer_insight(
 
-            system_prompt=system_prompt,
+        system_prompt=system_prompt,
 
-            user_prompt=user_prompt
+        user_prompt=user_prompt
 
-        )
+    )
 
-        ##############################################
-        # Save JSON
-        ##############################################
+    ##################################################
+    # Save JSON
+    ##################################################
 
-        self._save_output(response)
+    self._save_output(response)
 
-        return response
+    return response
 
     ###########################################################
     # Read Existing Result
@@ -244,54 +256,44 @@ Competitor Summary
     # Customer Summary
     ###########################################################
 
-    def _customer_summary(self, df):
+def _customer_summary(self, df):
 
-        if df.empty:
+    if df is None or df.empty:
 
-            return {}
+        return {}
 
-        return {
+    return {
 
-            "total_customers": len(df),
+        "total_customers": len(df),
 
-            "columns": list(df.columns),
+        "columns": list(df.columns),
 
-            "sample":
+        "sample": df.head(20).to_dict(
+            orient="records"
+        )
 
-                df.head(20).to_dict(
-
-                    orient="records"
-
-                )
-
-        }
-
+    }
     ###########################################################
     # Campaign Summary
     ###########################################################
 
-    def _campaign_summary(self, df):
+def _campaign_summary(self, df):
 
-        if df.empty:
+    if df is None or df.empty:
 
-            return {}
+        return {}
 
-        return {
+    return {
 
-            "total_campaigns": len(df),
+        "total_campaigns": len(df),
 
-            "columns": list(df.columns),
+        "columns": list(df.columns),
 
-            "sample":
+        "sample": df.head(20).to_dict(
+            orient="records"
+        )
 
-                df.head(20).to_dict(
-
-                    orient="records"
-
-                )
-
-        }
-
+    }
     ###########################################################
     # Prompt File
     ###########################################################
