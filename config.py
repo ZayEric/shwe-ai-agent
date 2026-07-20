@@ -22,9 +22,18 @@ AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
 # Customer Intelligence
 #############################################
 
-CUSTOMER_SHAREPOINT_FOLDER = "Customer Intelligence"
+CUSTOMER_ROOT_FOLDER = "Customer Intelligence"
+
+FACEBOOK_FOLDER = "Facebook"
+PLAYSTORE_FOLDER = "PlayStore"
+COMPETITOR_FOLDER = "Competitor"
+WALLET_FOLDER = "Wallet"
+IBMB_FOLDER = "IBMB"
+CAMPAIGN_FOLDER = "Campaign"
+CUSTOMER_FOLDER = "Customer"
+
 FACEBOOK_PATTERN = "Facebook*.json"
 PLAYSTORE_PATTERN = "PlayStore*.json"
-COMPETITOR_PATTERN = "Competitor*.md"
+COMPETITOR_PATTERN = "*.md"
 CAMPAIGN_PATTERN = "Campaign*.xlsx"
 CUSTOMER_PATTERN = "Customer*.xlsx"
