@@ -4,9 +4,19 @@ from collections import Counter
 
 class CompetitorService:
 
-    def __init__(self, markdown_text: str):
+    def __init__(self, competitors: dict):
 
-        self.markdown = markdown_text or ""
+        """
+        competitors =
+
+        {
+            "KBZBank": "...markdown...",
+            "AYABank": "...markdown...",
+            ...
+        }
+        """
+
+        self.competitors = competitors or {}
 
     ############################################################
     # Public
@@ -14,25 +24,31 @@ class CompetitorService:
 
     def summarize(self):
 
-        return {
+        summary = {}
 
-            "products": self.extract_products(),
+        for bank, markdown in self.competitors.items():
 
-            "campaigns": self.extract_campaigns(),
+            summary[bank] = {
 
-            "headings": self.extract_headings(),
+                "products": self.extract_products(markdown),
 
-            "top_keywords": self.top_keywords(),
+                "campaigns": self.extract_campaigns(markdown),
 
-            "word_count": self.word_count()
+                "headings": self.extract_headings(markdown),
 
-        }
+                "top_keywords": self.top_keywords(markdown),
+
+                "word_count": self.word_count(markdown)
+
+            }
+
+        return summary
 
     ############################################################
     # Products
     ############################################################
 
-    def extract_products(self):
+    def extract_products(self, markdown):
 
         keywords = [
 
@@ -52,7 +68,7 @@ class CompetitorService:
 
         found = []
 
-        text = self.markdown.lower()
+        text = markdown.lower()
 
         for keyword in keywords:
 
@@ -66,7 +82,7 @@ class CompetitorService:
     # Campaigns
     ############################################################
 
-    def extract_campaigns(self):
+    def extract_campaigns(self, markdown):
 
         campaign_words = [
 
@@ -82,9 +98,7 @@ class CompetitorService:
 
         result = []
 
-        lines = self.markdown.splitlines()
-
-        for line in lines:
+        for line in markdown.splitlines():
 
             lower = line.lower()
 
@@ -102,15 +116,19 @@ class CompetitorService:
     # Markdown Headings
     ############################################################
 
-    def extract_headings(self):
+    def extract_headings(self, markdown):
 
         headings = []
 
-        for line in self.markdown.splitlines():
+        for line in markdown.splitlines():
 
             if line.startswith("#"):
 
-                headings.append(line.replace("#", "").strip())
+                headings.append(
+
+                    line.replace("#", "").strip()
+
+                )
 
         return headings
 
@@ -118,21 +136,26 @@ class CompetitorService:
     # Keyword Frequency
     ############################################################
 
-    def top_keywords(self, top_n=20):
+    def top_keywords(self, markdown, top_n=20):
 
         stop_words = {
 
             "the", "and", "for", "with", "your",
-
             "from", "this", "that", "have",
-
             "will", "our", "you", "are",
-
             "bank", "banking"
 
         }
 
-        text = re.sub(r'[^a-zA-Z ]', ' ', self.markdown)
+        text = re.sub(
+
+            r"[^a-zA-Z ]",
+
+            " ",
+
+            markdown
+
+        )
 
         words = []
 
@@ -156,6 +179,34 @@ class CompetitorService:
     # Word Count
     ############################################################
 
-    def word_count(self):
+    def word_count(self, markdown):
 
-        return len(self.markdown.split())
+        return len(markdown.split())
+
+    ############################################################
+    # Compare Competitors (Optional)
+    ############################################################
+
+    def compare_products(self):
+
+        comparison = {}
+
+        for bank, markdown in self.competitors.items():
+
+            comparison[bank] = self.extract_products(markdown)
+
+        return comparison
+
+    ############################################################
+    # Compare Campaigns (Optional)
+    ############################################################
+
+    def compare_campaigns(self):
+
+        comparison = {}
+
+        for bank, markdown in self.competitors.items():
+
+            comparison[bank] = self.extract_campaigns(markdown)
+
+        return comparison
