@@ -18,8 +18,15 @@ AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY")
 AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT")
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
 
-FACEBOOK_PATTERN="*.json"
-COMPETITOR_PATTERN="*.md"
-CAMPAIGN_PATTERN="*Campaign*.xlsx"
-CUSTOMER_PATTERN="*Customer*.xlsx"
-PLAYSTORE_PATTERN="*PlayStore*.json"
+#############################################
+# Customer Intelligence
+#############################################
+
+CUSTOMER_SHAREPOINT_FOLDER = "Customer Intelligence"
+FACEBOOK_PATTERN = "Facebook*.json"
+PLAYSTORE_PATTERN = "PlayStore*.json"
+COMPETITOR_PATTERN = "Competitor*.md"
+CAMPAIGN_PATTERN = "Campaign*.xlsx"
+CUSTOMER_PATTERN = "Customer*.xlsx"
+WALLET_PATTERN = "Wallet*.xlsx"
+IBMB_PATTERN = "IBMB*.xlsx"
