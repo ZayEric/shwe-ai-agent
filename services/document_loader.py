@@ -1,8 +1,6 @@
 from config import *
 
-from services.customer_sharepoint_service import (
-    CustomerSharePointService
-)
+from services.customer_sharepoint_service import CustomerSharePointService
 
 
 class DocumentLoader:
@@ -15,25 +13,39 @@ class DocumentLoader:
 
         return {
 
-            "facebook":
-                self.sp.load_json(FACEBOOK_PATTERN),
+            "facebook": self.sp.load_json(
+                FACEBOOK_FOLDER,
+                FACEBOOK_PATTERN
+            ),
 
-            "playstore":
-                self.sp.load_json(PLAYSTORE_PATTERN),
+            "playstore": self.sp.load_json(
+                PLAYSTORE_FOLDER,
+                PLAYSTORE_PATTERN
+            ),
 
-            "competitor":
-                self.sp.load_markdown(COMPETITOR_PATTERN),
+            "competitor": self.sp.load_markdown(
+                COMPETITOR_FOLDER,
+                COMPETITOR_PATTERN
+            ),
 
-            "wallet":
-                self.sp.load_excel(WALLET_PATTERN),
+            "wallet": self.sp.load_excel(
+                WALLET_FOLDER,
+                WALLET_PATTERN
+            ),
 
-            "ibmb":
-                self.sp.load_excel(IBMB_PATTERN),
+            "ibmb": self.sp.load_excel(
+                IBMB_FOLDER,
+                IBMB_PATTERN
+            ),
 
-            "campaign":
-                self.sp.load_excel(CAMPAIGN_PATTERN),
+            "campaign": self.sp.load_excel(
+                CAMPAIGN_FOLDER,
+                CAMPAIGN_PATTERN
+            ),
 
-            "customer":
-                self.sp.load_excel(CUSTOMER_PATTERN)
+            "customer": self.sp.load_excel(
+                CUSTOMER_FOLDER,
+                CUSTOMER_PATTERN
+            )
 
         }
