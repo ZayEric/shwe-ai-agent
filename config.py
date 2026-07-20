@@ -22,7 +22,7 @@ AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
 # Customer Intelligence
 #############################################
 
-CUSTOMER_ROOT_FOLDER = "Customer Intelligence"
+CUSTOMER_ROOT_FOLDER = os.getenv("CUSTOMER_ROOT_FOLDER")
 
 FACEBOOK_FOLDER = "Facebook"
 PLAYSTORE_FOLDER = "PlayStore"
