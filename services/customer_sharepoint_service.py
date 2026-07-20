@@ -6,10 +6,7 @@ from io import BytesIO
 from fnmatch import fnmatch
 
 from services.auth_service import get_graph_token
-from config import (
-    DRIVE_ID,
-    CUSTOMER_SHAREPOINT_FOLDER
-)
+from config import DRIVE_ID, CUSTOMER_ROOT_FOLDER
 
 
 class CustomerSharePointService:
@@ -22,11 +19,17 @@ class CustomerSharePointService:
             "Authorization": f"Bearer {self.token}"
         }
 
-    def _download_latest_file(self, file_pattern):
+    ##########################################################
+    # Generic Downloader
+    ##########################################################
+
+    def _download_latest_file(self, folder, file_pattern):
+
+        full_path = f"{CUSTOMER_ROOT_FOLDER}/{folder}"
 
         list_url = (
             f"https://graph.microsoft.com/v1.0/drives/"
-            f"{DRIVE_ID}/root:/{CUSTOMER_SHAREPOINT_FOLDER}:/children"
+            f"{DRIVE_ID}/root:/{full_path}:/children"
         )
 
         response = requests.get(
@@ -38,25 +41,31 @@ class CustomerSharePointService:
 
         files = response.json()["value"]
 
-        matched = []
+        matched = [
 
-        for f in files:
+            f for f in files
 
-            if fnmatch(f["name"], file_pattern):
+            if fnmatch(f["name"], file_pattern)
 
-                matched.append(f)
+        ]
 
         if not matched:
 
-            raise Exception(f"No file found : {file_pattern}")
+            raise Exception(
 
-        latest = sorted(
+                f"No file matching '{file_pattern}' found in '{folder}'."
+
+            )
+
+        latest = max(
+
             matched,
-            key=lambda x: x["lastModifiedDateTime"],
-            reverse=True
-        )[0]
 
-        print(f"Downloading {latest['name']}")
+            key=lambda x: x["lastModifiedDateTime"]
+
+        )
+
+        print(f"Downloading {folder}/{latest['name']}")
 
         download_url = latest["@microsoft.graph.downloadUrl"]
 
@@ -66,32 +75,32 @@ class CustomerSharePointService:
 
         return latest["name"], response.content
 
-    #######################################################
+    ##########################################################
     # Excel
-    #######################################################
+    ##########################################################
 
-    def load_excel(self, pattern):
+    def load_excel(self, folder, pattern):
 
-        filename, content = self._download_latest_file(pattern)
+        _, content = self._download_latest_file(folder, pattern)
 
         return pd.read_excel(BytesIO(content))
 
-    #######################################################
+    ##########################################################
     # JSON
-    #######################################################
+    ##########################################################
 
-    def load_json(self, pattern):
+    def load_json(self, folder, pattern):
 
-        filename, content = self._download_latest_file(pattern)
+        _, content = self._download_latest_file(folder, pattern)
 
         return json.loads(content.decode("utf-8"))
 
-    #######################################################
+    ##########################################################
     # Markdown
-    #######################################################
+    ##########################################################
 
-    def load_markdown(self, pattern):
+    def load_markdown(self, folder, pattern):
 
-        filename, content = self._download_latest_file(pattern)
+        _, content = self._download_latest_file(folder, pattern)
 
         return content.decode("utf-8")
