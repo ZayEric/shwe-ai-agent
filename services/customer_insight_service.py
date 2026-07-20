@@ -23,96 +23,128 @@ class CustomerInsightService:
     # Main Analysis
     ###########################################################
 
-def analyze(self):
+    def analyze(self):
 
-    documents = self.loader.load_all()
+        documents = self.loader.load_all()
 
-    ##################################################
-    # Summaries
-    ##################################################
+        ##################################################
+        # Facebook
+        ##################################################
 
-    facebook_summary = {}
+        facebook_summary = {}
 
-    if documents["facebook"]:
+        facebook = documents.get("facebook", [])
+        
+        if len(facebook) > 0:
+        
+            facebook_summary = FacebookService(
+                facebook
+            ).summarize()
 
-        facebook_summary = FacebookService(
-            documents["facebook"]
+        ##################################################
+        # Competitor
+        ##################################################
+
+        competitor_summary = CompetitorService(
+            documents.get("competitor", {})
         ).summarize()
 
-    competitor_summary = CompetitorService(
-        documents["competitor"]
-    ).summarize()
+        ##################################################
+        # Wallet
+        ##################################################
 
-    wallet_summary = {}
+        wallet_summary = {}
 
-    if not documents["wallet"].empty:
+        wallet_df = documents.get("wallet")
 
-        wallet_summary = WalletService(
-            documents["wallet"]
-        ).summarize()
+        if wallet_df is not None and not wallet_df.empty:
 
-    ibmb_summary = {}
+            wallet_summary = WalletService(
+                wallet_df
+            ).summarize()
 
-    if not documents["ibmb"].empty:
+        ##################################################
+        # IBMB
+        ##################################################
 
-        ibmb_summary = IBMBService(
-            documents["ibmb"]
-        ).summarize()
+        ibmb_summary = {}
 
-    customer_summary = self._customer_summary(
-        documents["customer"]
-    )
+        ibmb_df = documents.get("ibmb")
 
-    campaign_summary = self._campaign_summary(
-        documents["campaign"]
-    )
+        if ibmb_df is not None and not ibmb_df.empty:
 
-    playstore_summary = documents["playstore"]
+            ibmb_summary = IBMBService(
+                ibmb_df
+            ).summarize()
 
-    ##################################################
-    # Build Prompt
-    ##################################################
+        ##################################################
+        # Customer
+        ##################################################
 
-    system_prompt = self._load_prompt()
+        customer_summary = self._customer_summary(
+            documents.get("customer")
+        )
 
-    user_prompt = self._build_prompt(
+        ##################################################
+        # Campaign
+        ##################################################
 
-        facebook_summary,
+        campaign_summary = self._campaign_summary(
+            documents.get("campaign")
+        )
 
-        playstore_summary,
+        ##################################################
+        # Play Store
+        ##################################################
 
-        wallet_summary,
+        playstore_summary = documents.get(
+            "playstore",
+            []
+        )
 
-        ibmb_summary,
+        ##################################################
+        # Build Prompt
+        ##################################################
 
-        customer_summary,
+        system_prompt = self._load_prompt()
 
-        campaign_summary,
+        user_prompt = self._build_prompt(
 
-        competitor_summary
+            facebook_summary,
 
-    )
+            playstore_summary,
 
-    ##################################################
-    # Azure OpenAI
-    ##################################################
+            wallet_summary,
 
-    response = generate_customer_insight(
+            ibmb_summary,
 
-        system_prompt=system_prompt,
+            customer_summary,
 
-        user_prompt=user_prompt
+            campaign_summary,
 
-    )
+            competitor_summary
 
-    ##################################################
-    # Save JSON
-    ##################################################
+        )
 
-    self._save_output(response)
+        ##################################################
+        # Azure OpenAI
+        ##################################################
 
-    return response
+        response = generate_customer_insight(
 
+            system_prompt=system_prompt,
+
+            user_prompt=user_prompt
+
+        )
+
+        ##################################################
+        # Save Output
+        ##################################################
+
+        self._save_output(response)
+
+        return response
     ###########################################################
     # Read Existing Result
     ###########################################################
@@ -137,7 +169,7 @@ def analyze(self):
         user_prompt = f"""
 Insight
 
-{json.dumps(insight, indent=2)}
+{json.dumps(insight, indent=2, ensure_ascii=False)}
 
 Question
 
@@ -146,9 +178,9 @@ Question
 
         return generate_customer_insight(
 
-            system_prompt,
+            system_prompt=system_prompt,
 
-            user_prompt
+            user_prompt=user_prompt
 
         )
 
@@ -209,46 +241,45 @@ Question
     ):
 
         return f"""
-
 Facebook Summary
 
-{json.dumps(facebook, indent=2)}
+{json.dumps(facebook, indent=2, ensure_ascii=False)}
 
---------------------------------
+------------------------------------------------------------
 
-PlayStore Reviews
+Play Store Reviews
 
-{json.dumps(playstore, indent=2)}
+{json.dumps(playstore, indent=2, ensure_ascii=False)}
 
---------------------------------
+------------------------------------------------------------
 
 Wallet Summary
 
-{json.dumps(wallet, indent=2)}
+{json.dumps(wallet, indent=2, ensure_ascii=False)}
 
---------------------------------
+------------------------------------------------------------
 
 IBMB Summary
 
-{json.dumps(ibmb, indent=2)}
+{json.dumps(ibmb, indent=2, ensure_ascii=False)}
 
---------------------------------
+------------------------------------------------------------
 
 Customer Summary
 
-{json.dumps(customer, indent=2)}
+{json.dumps(customer, indent=2, ensure_ascii=False)}
 
---------------------------------
+------------------------------------------------------------
 
 Campaign Summary
 
-{json.dumps(campaign, indent=2)}
+{json.dumps(campaign, indent=2, ensure_ascii=False)}
 
---------------------------------
+------------------------------------------------------------
 
 Competitor Summary
 
-{json.dumps(competitor, indent=2)}
+{json.dumps(competitor, indent=2, ensure_ascii=False)}
 
 """
 
@@ -256,44 +287,50 @@ Competitor Summary
     # Customer Summary
     ###########################################################
 
-def _customer_summary(self, df):
+    def _customer_summary(self, df):
 
-    if df is None or df.empty:
+        if df is None or df.empty:
 
-        return {}
+            return {}
 
-    return {
+        return {
 
-        "total_customers": len(df),
+            "total_customers": len(df),
 
-        "columns": list(df.columns),
+            "columns": list(df.columns),
 
-        "sample": df.head(20).to_dict(
-            orient="records"
-        )
+            "sample": df.head(20).to_dict(
 
-    }
+                orient="records"
+
+            )
+
+        }
+
     ###########################################################
     # Campaign Summary
     ###########################################################
 
-def _campaign_summary(self, df):
+    def _campaign_summary(self, df):
 
-    if df is None or df.empty:
+        if df is None or df.empty:
 
-        return {}
+            return {}
 
-    return {
+        return {
 
-        "total_campaigns": len(df),
+            "total_campaigns": len(df),
 
-        "columns": list(df.columns),
+            "columns": list(df.columns),
 
-        "sample": df.head(20).to_dict(
-            orient="records"
-        )
+            "sample": df.head(20).to_dict(
 
-    }
+                orient="records"
+
+            )
+
+        }
+
     ###########################################################
     # Prompt File
     ###########################################################
@@ -303,6 +340,8 @@ def _campaign_summary(self, df):
         with open(
 
             PROMPT_FILE,
+
+            "r",
 
             encoding="utf-8"
 
@@ -316,7 +355,13 @@ def _campaign_summary(self, df):
 
     def _save_output(self, response):
 
-        os.makedirs("output", exist_ok=True)
+        os.makedirs(
+
+            "output",
+
+            exist_ok=True
+
+        )
 
         if isinstance(response, str):
 
@@ -360,7 +405,11 @@ def _campaign_summary(self, df):
 
     def _load_output(self):
 
-        if not os.path.exists(OUTPUT_FILE):
+        if not os.path.exists(
+
+            OUTPUT_FILE
+
+        ):
 
             return {}
 
@@ -368,12 +417,13 @@ def _campaign_summary(self, df):
 
             OUTPUT_FILE,
 
+            "r",
+
             encoding="utf-8"
 
         ) as f:
 
             return json.load(f)
-
 
 ###############################################################
 # Wrapper Functions
