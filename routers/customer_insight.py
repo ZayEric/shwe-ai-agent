@@ -6,7 +6,11 @@ from services.customer_insight_service import (
     get_executive_summary,
     ask_business_question,
     get_recommendations,
-    get_customer_segments
+    get_customer_segments,
+
+    get_comparison,
+    get_swot,
+    get_dashboard
 )
 
 router = APIRouter(
