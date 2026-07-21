@@ -368,14 +368,11 @@ Competitor Summary
 
     def _save_output(self, response):
 
-        os.makedirs(
-
-            "output",
-
-            exist_ok=True
-
-        )
-
+        print("Saving insight.json...")
+        os.makedirs("output", exist_ok=True)
+        print(os.getcwd())
+        print(OUTPUT_FILE)
+        
         if isinstance(response, str):
 
             try:
