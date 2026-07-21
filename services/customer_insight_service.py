@@ -9,7 +9,16 @@ from services.ibmb_service import IBMBService
 from services.openai_service import generate_customer_insight
 
 
-OUTPUT_FILE = "output/insight.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+OUTPUT_FILE = os.path.join(
+    BASE_DIR,
+    "..",
+    "output",
+    "insight.json"
+)
+
+OUTPUT_FILE = os.path.abspath(OUTPUT_FILE)
 PROMPT_FILE = "prompts/customer_prompt.txt"
 
 
