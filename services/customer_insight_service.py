@@ -35,7 +35,6 @@ print("Exists:", os.path.exists(PROMPT_FILE))
 class CustomerInsightService:
 
     def __init__(self):
-
         self.loader = DocumentLoader()
 
     ###########################################################
@@ -43,7 +42,6 @@ class CustomerInsightService:
     ###########################################################
 
     def analyze(self):
-
         documents = self.loader.load_all()
         print("=" * 80)
         print("DOCUMENTS")
@@ -54,11 +52,10 @@ class CustomerInsightService:
         ##################################################
 
         facebook_summary = {}
-
         facebook = documents.get("facebook", [])
         
         if len(facebook) > 0:
-        
+       
             facebook_summary = FacebookService(
                 facebook
             ).summarize()
@@ -81,11 +78,9 @@ class CustomerInsightService:
         ##################################################
 
         wallet_summary = {}
-
         wallet_df = documents.get("wallet")
 
         if wallet_df is not None and not wallet_df.empty:
-
             wallet_summary = WalletService(
                 wallet_df
             ).summarize()
@@ -95,9 +90,7 @@ class CustomerInsightService:
         ##################################################
 
         ibmb_summary = {}
-
         ibmb_df = documents.get("ibmb")
-
         if ibmb_df is not None and not ibmb_df.empty:
 
             ibmb_summary = IBMBService(
@@ -171,7 +164,6 @@ class CustomerInsightService:
     ###########################################################
 
     def summary(self):
-
         return self._load_output()
 
     ###########################################################
@@ -179,9 +171,7 @@ class CustomerInsightService:
     ###########################################################
 
     def ask(self, question):
-
         insight = self._load_output()
-
         system_prompt = (
             "You are an executive banking advisor. "
             "Answer using ONLY the supplied insight JSON."
@@ -210,9 +200,7 @@ Question
     ###########################################################
 
     def recommendations(self):
-
         insight = self._load_output()
-
         return insight.get(
 
             "recommended_products",
@@ -226,7 +214,6 @@ Question
     ###########################################################
 
     def segments(self):
-
         insight = self._load_output()
 
         return insight.get(
@@ -304,17 +291,13 @@ Competitor Summary
     def _customer_summary(self, df):
 
         if df is None or df.empty:
-
             return {}
 
         return {
 
             "total_customers": len(df),
-
             "columns": list(df.columns),
-
             "sample": df.head(20).to_dict(
-
                 orient="records"
 
             )
@@ -332,13 +315,9 @@ Competitor Summary
             return {}
 
         return {
-
             "total_campaigns": len(df),
-
             "columns": list(df.columns),
-
             "sample": df.head(20).to_dict(
-
                 orient="records"
 
             )
@@ -352,9 +331,7 @@ Competitor Summary
     def _load_prompt(self):
 
         with open(
-
             PROMPT_FILE,
-
             "r",
 
             encoding="utf-8"
@@ -383,11 +360,9 @@ Competitor Summary
         if isinstance(response, str):
 
             try:
-
                 response = json.loads(response)
 
             except Exception:
-
                 response = {
 
                     "raw_response": response
@@ -425,25 +400,19 @@ Competitor Summary
         if not os.path.exists(
 
             OUTPUT_FILE
-
         ):
-
             return {}
 
         with open(
-
             OUTPUT_FILE,
-
             "r",
-
             encoding="utf-8"
 
         ) as f:
-
             return json.load(f)
 
     def comparison(self):
-    
+   
         return self._load_output().get(
             "competitor_comparison",
             []
@@ -482,23 +451,23 @@ def get_executive_summary():
     return data.get(
 
         "executive_summary",
-
         {}
-
     )
 
-
 def ask_business_question(question):
-
     return _service.ask(question)
 
-
 def get_recommendations():
-
     return _service.recommendations()
 
-
 def get_customer_segments():
-
     return _service.segments()
 
+def get_comparison():
+    return _service.comparison()
+
+def get_swot():
+    return _service.swot()
+
+def get_dashboard():
+    return _service.dashboard()
