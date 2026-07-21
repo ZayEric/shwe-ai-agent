@@ -26,7 +26,14 @@ class CustomerInsightService:
     def analyze(self):
 
         documents = self.loader.load_all()
-
+        print("=" * 80)
+        print("DOCUMENTS")
+        print(documents.keys())
+        
+        print("Competitor:")
+        print(documents.get("competitor"))
+        
+        print("=" * 80)
         ##################################################
         # Facebook
         ##################################################
