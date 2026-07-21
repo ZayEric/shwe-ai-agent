@@ -17,10 +17,20 @@ OUTPUT_FILE = os.path.join(
     "output",
     "insight.json"
 )
-
 OUTPUT_FILE = os.path.abspath(OUTPUT_FILE)
-PROMPT_FILE = "prompts/customer_prompt.txt"
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROMPT_FILE = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        "..",
+        "prompts",
+        "customer_prompt.txt"
+    )
+)
+
+print("Prompt:", PROMPT_FILE)
+print("Exists:", os.path.exists(PROMPT_FILE))
 
 class CustomerInsightService:
 
@@ -126,21 +136,13 @@ class CustomerInsightService:
         system_prompt = self._load_prompt()
 
         user_prompt = self._build_prompt(
-
             facebook_summary,
-
             playstore_summary,
-
             wallet_summary,
-
             ibmb_summary,
-
             customer_summary,
-
             campaign_summary,
-
             competitor_summary
-
         )
 
         ##################################################
@@ -153,11 +155,8 @@ class CustomerInsightService:
         print("=" * 80)
         
         response = generate_customer_insight(
-
             system_prompt=system_prompt,
-
             user_prompt=user_prompt
-
         )
 
         ##################################################
@@ -245,19 +244,12 @@ Question
     def _build_prompt(
 
         self,
-
         facebook,
-
         playstore,
-
         wallet,
-
         ibmb,
-
         customer,
-
         campaign,
-
         competitor
 
     ):
@@ -378,7 +370,10 @@ Competitor Summary
     def _save_output(self, response):
 
         print("Saving insight.json...")
-        os.makedirs("output", exist_ok=True)
+        os.makedirs(
+            os.path.dirname(OUTPUT_FILE),
+            exist_ok=True
+        )
         print(os.getcwd())
         print(OUTPUT_FILE)
 
@@ -447,6 +442,27 @@ Competitor Summary
 
             return json.load(f)
 
+    def comparison(self):
+    
+        return self._load_output().get(
+            "competitor_comparison",
+            []
+        )
+    
+    def swot(self):
+    
+        return self._load_output().get(
+            "swot_analysis",
+            {}
+        )
+    
+    def dashboard(self):
+    
+        return self._load_output().get(
+            "executive_dashboard",
+            {}
+        )
+
 ###############################################################
 # Wrapper Functions
 ###############################################################
@@ -486,23 +502,3 @@ def get_customer_segments():
 
     return _service.segments()
 
-def comparison(self):
-
-    return self._load_output().get(
-        "competitor_comparison",
-        []
-    )
-
-def swot(self):
-
-    return self._load_output().get(
-        "swot_analysis",
-        {}
-    )
-
-def dashboard(self):
-
-    return self._load_output().get(
-        "executive_dashboard",
-        {}
-    )
