@@ -52,10 +52,10 @@ class CustomerInsightService:
             documents.get("competitor", {})
         ).summarize()
 
-        print("=" * 80)
-        print("COMPETITOR SUMMARY")
-        print(json.dumps(competitor_summary, indent=2, ensure_ascii=False))
-        print("=" * 80)
+        #print("=" * 80)
+        #print("COMPETITOR SUMMARY")
+        #print(json.dumps(competitor_summary, indent=2, ensure_ascii=False))
+        #print("=" * 80)
 
         ##################################################
         # Wallet
