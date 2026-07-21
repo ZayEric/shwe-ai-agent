@@ -29,10 +29,6 @@ class CustomerInsightService:
         print("=" * 80)
         print("DOCUMENTS")
         print(documents.keys())
-        
-        print("Competitor:")
-        print(documents.get("competitor"))
-        
         print("=" * 80)
         ##################################################
         # Facebook
@@ -55,6 +51,11 @@ class CustomerInsightService:
         competitor_summary = CompetitorService(
             documents.get("competitor", {})
         ).summarize()
+
+        print("=" * 80)
+        print("COMPETITOR SUMMARY")
+        print(json.dumps(competitor_summary, indent=2, ensure_ascii=False))
+        print("=" * 80)
 
         ##################################################
         # Wallet
