@@ -145,3 +145,38 @@ def segments():
             status_code=500,
             detail=str(e)
         )
+
+@router.get("/comparison")
+def comparison():
+
+    return {
+
+        "success": True,
+
+        "comparison": get_comparison()
+
+    }
+
+
+@router.get("/swot")
+def swot():
+
+    return {
+
+        "success": True,
+
+        "swot": get_swot()
+
+    }
+
+
+@router.get("/dashboard")
+def dashboard():
+
+    return {
+
+        "success": True,
+
+        "dashboard": get_dashboard()
+
+    }
