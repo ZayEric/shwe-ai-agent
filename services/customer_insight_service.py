@@ -138,6 +138,11 @@ class CustomerInsightService:
         # Azure OpenAI
         ##################################################
 
+        print("=" * 80)
+        print("PROMPT LENGTH")
+        print(len(user_prompt))
+        print("=" * 80)
+        
         response = generate_customer_insight(
 
             system_prompt=system_prompt,
