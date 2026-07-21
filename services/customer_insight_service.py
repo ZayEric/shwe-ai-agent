@@ -473,3 +473,24 @@ def get_recommendations():
 def get_customer_segments():
 
     return _service.segments()
+
+def comparison(self):
+
+    return self._load_output().get(
+        "competitor_comparison",
+        []
+    )
+
+def swot(self):
+
+    return self._load_output().get(
+        "swot_analysis",
+        {}
+    )
+
+def dashboard(self):
+
+    return self._load_output().get(
+        "executive_dashboard",
+        {}
+    )
