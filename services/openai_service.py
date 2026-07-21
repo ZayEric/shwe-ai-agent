@@ -30,32 +30,26 @@ def ask_openai(system_prompt: str, user_prompt: str):
         model=AZURE_OPENAI_DEPLOYMENT,
 
         input=[
-
             {
                 "role": "system",
                 "content": system_prompt
             },
-
             {
                 "role": "user",
                 "content": user_prompt
             }
-
         ]
-
     )
 
-    return response.output_text
-    
+    content = response.output_text
+
     try:
         return json.loads(content)
 
-    except Exception:
+    except json.JSONDecodeError:
 
         return {
-
             "raw_response": content
-
         }
 
 ###############################################################
