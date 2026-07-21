@@ -372,6 +372,9 @@ Competitor Summary
         os.makedirs("output", exist_ok=True)
         print(os.getcwd())
         print(OUTPUT_FILE)
+
+        print("Current directory:", os.getcwd())
+        print("Absolute path:", os.path.abspath(OUTPUT_FILE))
         
         if isinstance(response, str):
 
