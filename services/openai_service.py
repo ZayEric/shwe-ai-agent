@@ -1,3 +1,4 @@
+import json
 from openai import OpenAI
 from config import *
 
@@ -45,7 +46,17 @@ def ask_openai(system_prompt: str, user_prompt: str):
     )
 
     return response.output_text
+    
+    try:
+        return json.loads(content)
 
+    except Exception:
+
+        return {
+
+            "raw_response": content
+
+        }
 
 ###############################################################
 # AML
