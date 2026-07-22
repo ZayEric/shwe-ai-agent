@@ -198,11 +198,8 @@ Question
 """
 
         return generate_customer_insight(
-
             system_prompt=system_prompt,
-
             user_prompt=user_prompt
-
         )
 
     ###########################################################
@@ -212,11 +209,8 @@ Question
     def recommendations(self):
         insight = self._load_output()
         return insight.get(
-
             "recommended_products",
-
             []
-
         )
 
     ###########################################################
@@ -225,13 +219,9 @@ Question
 
     def segments(self):
         insight = self._load_output()
-
         return insight.get(
-
             "customer_segments",
-
             []
-
         )
 
     ###########################################################
@@ -239,7 +229,6 @@ Question
     ###########################################################
 
     def _build_prompt(
-
         self,
         facebook,
         playstore,
@@ -299,19 +288,15 @@ Competitor Summary
     ###########################################################
 
     def _customer_summary(self, df):
-
         if df is None or df.empty:
             return {}
-
         return {
 
             "total_customers": len(df),
             "columns": list(df.columns),
             "sample": df.head(20).to_dict(
                 orient="records"
-
             )
-
         }
 
     ###########################################################
@@ -319,27 +304,20 @@ Competitor Summary
     ###########################################################
 
     def _campaign_summary(self, df):
-
         if df is None or df.empty:
-
             return {}
-
         return {
             "total_campaigns": len(df),
             "columns": list(df.columns),
             "sample": df.head(20).to_dict(
                 orient="records"
-
             )
-
         }
-
     ###########################################################
     # Prompt File
     ###########################################################
 
     def _load_prompt(self):
-
         with open(
             PROMPT_FILE,
             "r",
@@ -355,9 +333,7 @@ Competitor Summary
     ###########################################################
 
     def _save_output(self, response):
-    
         logger.info("Saving insight.json...")
-    
         try:
     
             logger.info("OUTPUT_FILE = %s", OUTPUT_FILE)
@@ -373,9 +349,7 @@ Competitor Summary
             )
     
             logger.info("Directory created.")
-    
             logger.info("Current directory: %s", os.getcwd())
-    
             logger.info("Absolute path: %s", OUTPUT_FILE)
     
             if isinstance(response, str):
@@ -388,7 +362,6 @@ Competitor Summary
                     response = {
                         "raw_response": response
                     }
-    
             logger.info("Response type: %s", type(response))
     
             with open(
@@ -403,7 +376,6 @@ Competitor Summary
                     indent=4,
                     ensure_ascii=False
                 )
-    
             logger.info("File written.")
     
             logger.info(
@@ -419,9 +391,7 @@ Competitor Summary
                 )
     
         except Exception:
-    
-            logger.exception("SAVE ERROR")
-    
+            logger.exception("SAVE ERROR")   
             raise
 
     ###########################################################
@@ -429,7 +399,6 @@ Competitor Summary
     ###########################################################
 
     def _load_output(self):
-
         if not os.path.exists(
 
             OUTPUT_FILE
@@ -440,26 +409,22 @@ Competitor Summary
             OUTPUT_FILE,
             "r",
             encoding="utf-8"
-
         ) as f:
             return json.load(f)
 
     def comparison(self):
-   
         return self._load_output().get(
             "competitor_comparison",
             []
         )
     
     def swot(self):
-    
         return self._load_output().get(
             "swot_analysis",
             {}
         )
     
     def dashboard(self):
-    
         return self._load_output().get(
             "executive_dashboard",
             {}
@@ -473,16 +438,12 @@ _service = CustomerInsightService()
 
 
 def analyze_customer_insight():
-
     return _service.analyze()
 
 
 def get_executive_summary():
-
     data = _service.summary()
-
     return data.get(
-
         "executive_summary",
         {}
     )
