@@ -187,25 +187,54 @@ class CustomerInsightService:
     
         retrieved_documents = retriever.retrieve(question)
     
+        logger.info("=" * 80)
+        logger.info("QUESTION: %s", question)
+        logger.info(
+            "RETRIEVED KEYS: %s",
+            list(retrieved_documents.keys())
+        )
+    
+        if "competitor" in retrieved_documents:
+    
+            logger.info(
+                "Competitor Loaded: %s",
+                list(
+                    retrieved_documents["competitor"].keys()
+                )
+            )
+    
+        if "competitors" in retrieved_documents:
+    
+            logger.info(
+                "Competitor List: %s",
+                retrieved_documents["competitors"]
+            )
+    
         system_prompt = """
-    You are the Digital Banking Executive Advisor.
+    You are SHWE Bank's Digital Banking Strategy Advisor.
     
     Answer ONLY using the supplied documents.
     
-    If competitor markdown is provided,
-    compare products, services and campaigns.
+    If only a competitor list is supplied,
+    identify the competitors clearly.
     
-    If Wallet or IBMB data is provided,
-    analyse usage.
+    If competitor markdown is supplied,
+    compare products, digital services,
+    wallets, promotions and campaigns.
     
-    If CBS customer data is provided,
+    If Wallet data is supplied,
     analyse customer behaviour.
     
-    Do not invent facts.
+    If CBS customer data is supplied,
+    analyse customer segments.
+    
+    If information is unavailable,
+    state that clearly.
+    
+    Never invent facts.
     """
     
         user_prompt = f"""
-    
     Question
     
     {question}
@@ -217,16 +246,22 @@ class CustomerInsightService:
         indent=2,
         ensure_ascii=False
     )}
-    
     """
     
-        return generate_customer_insight(
+        logger.info(
+            "Prompt Length : %s",
+            len(user_prompt)
+        )
+    
+        response = generate_customer_insight(
     
             system_prompt=system_prompt,
     
             user_prompt=user_prompt
     
         )
+    
+        return response
 
     ###########################################################
     # Recommendation
