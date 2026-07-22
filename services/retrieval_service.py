@@ -43,26 +43,67 @@ class RetrievalService:
         # Competitor
         ####################################################
 
-        competitor_keywords = [
-
+        competitors = docs.get("competitor", {})
+        
+        # Default: no competitor selected
+        selected_competitors = {}
+        
+        # Bank name detection
+        bank_mapping = {
+        
+            "aya": "AYABank",
+            "ayabank": "AYABank",
+        
+            "abank": "ABank",
+        
+            "cb": "CBBank",
+            "cbbank": "CBBank",
+        
+            "kbz": "KBZBank",
+            "kbzbank": "KBZBank",
+        
+            "uab": "UABBank",
+        
+            "yoma": "YOMABank",
+            "yomabank": "YOMABank",
+        
+            "true money": "TrueMoney",
+            "truemoney": "TrueMoney"
+        
+        }
+        
+        for keyword, bank in bank_mapping.items():
+        
+            if keyword in question.lower():
+        
+                if bank in competitors:
+        
+                    selected_competitors[bank] = competitors[bank]
+        
+        # If no specific bank is mentioned,
+        # but user asks competitor comparison,
+        # return all competitors.
+        
+        generic_keywords = [
+        
             "competitor",
             "compare",
+            "comparison",
             "benchmark",
-            "aya",
-            "abank",
-            "cb",
-            "kbz",
-            "uab",
-            "yoma",
-            "wallet"
+            "market",
+            "industry"
+        
         ]
-
-        if any(k in question for k in competitor_keywords):
-
-            context["competitor"] = docs.get(
-                "competitor",
-                {}
-            )
+        
+        if len(selected_competitors) == 0:
+        
+            if any(k in question.lower() for k in generic_keywords):
+        
+                selected_competitors = competitors
+        
+        if len(selected_competitors) > 0:
+        
+            context["competitor"] = selected_competitors
 
         ####################################################
         # Wallet
