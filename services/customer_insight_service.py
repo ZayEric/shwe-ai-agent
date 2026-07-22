@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 
 from services.document_loader import DocumentLoader
 from services.facebook_service import FacebookService
@@ -8,6 +9,15 @@ from services.wallet_service import WalletService
 from services.ibmb_service import IBMBService
 from services.openai_service import generate_customer_insight
 
+import logging
+
+logging.basicConfig(
+    filename="/home/LogFiles/customer_insight.log",
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -44,7 +54,7 @@ class CustomerInsightService:
     def analyze(self):
         documents = self.loader.load_all()
         print("=" * 80)
-        print("DOCUMENTS")
+        logger.info("DOCUMENTS")
         print(documents.keys())
         print("=" * 80)
         ##################################################
@@ -143,7 +153,7 @@ class CustomerInsightService:
         ##################################################
 
         print("=" * 80)
-        print("PROMPT LENGTH")
+        logger.info("PROMPT LENGTH: %s", len(user_prompt))
         print(len(user_prompt))
         print("=" * 80)
         
@@ -346,7 +356,7 @@ Competitor Summary
 
     def _save_output(self, response):
 
-        print("Saving insight.json...")
+        logger.info("Saving insight.json...")
         os.makedirs(
             os.path.dirname(OUTPUT_FILE),
             exist_ok=True
