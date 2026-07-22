@@ -1,18 +1,16 @@
 import json
 
-from services.document_loader import DocumentLoader
+from services.customer_sharepoint_service import CustomerSharePointService
 
 
 class RetrievalService:
 
     def __init__(self):
-        self.loader = DocumentLoader()
+        self.sp = CustomerSharePointService()
 
     def retrieve(self, question):
 
         question = question.lower()
-
-        docs = self.loader.load_all()
 
         context = {}
 
@@ -42,13 +40,7 @@ class RetrievalService:
         ####################################################
         # Competitor
         ####################################################
-
-        competitors = docs.get("competitor", {})
         
-        # Default: no competitor selected
-        selected_competitors = {}
-        
-        # Bank name detection
         bank_mapping = {
         
             "aya": "AYABank",
@@ -65,65 +57,96 @@ class RetrievalService:
             "uab": "UABBank",
         
             "yoma": "YOMABank",
-            "yomabank": "YOMABank",
-        
-            "true money": "TrueMoney",
-            "truemoney": "TrueMoney"
+            "yomabank": "YOMABank"
         
         }
         
+        selected_bank = None
+        
         for keyword, bank in bank_mapping.items():
         
-            if keyword in question.lower():
+            if keyword in question:
         
-                if bank in competitors:
+                selected_bank = bank
+                break
         
-                    selected_competitors[bank] = competitors[bank]
         
-        # If no specific bank is mentioned,
-        # but user asks competitor comparison,
-        # return all competitors.
+        ####################################################
+        # Load ONE competitor
+        ####################################################
         
-        generic_keywords = [
+        if selected_bank:
         
-            "competitor",
-            "compare",
-            "comparison",
-            "benchmark",
-            "market",
-            "industry"
+            context["competitor"] = {
         
-        ]
+                selected_bank:
         
-        if len(selected_competitors) == 0:
+                self.sp.load_competitor_filtered(
         
-            if any(k in question.lower() for k in generic_keywords):
+                    selected_bank,
         
-                selected_competitors = competitors
+                    keywords=[
         
-        if len(selected_competitors) > 0:
+                        "wallet",
+                        "loan",
+                        "deposit",
+                        "mobile",
+                        "digital",
+                        "payment"
         
-            context["competitor"] = selected_competitors
+                    ]
+        
+                )
+        
+            }
+        
+        ####################################################
+        # Generic competitor question
+        ####################################################
+        
+        elif any(
+        
+            k in question
+        
+            for k in [
+        
+                "competitor",
+        
+                "compare",
+        
+                "comparison",
+        
+                "market"
+        
+            ]
+        
+        ):
+        
+            context["competitors"] = self.sp.get_competitor_banks()
 
         ####################################################
         # Wallet
         ####################################################
 
         if "wallet" in question:
-
-            wallet = docs.get("wallet")
-
-            if wallet is not None:
-
+        
+            try:
+        
+                wallet = self.sp.load_excel(
+                    "Wallet",
+                    "Wallet*.xlsx"
+                )
+        
                 context["wallet"] = {
-
                     "columns": list(wallet.columns),
-
-                    "sample": wallet.head(50).to_dict(
+                    "sample": wallet.head(30).to_dict(
                         orient="records"
                     )
-
                 }
+        
+            except Exception as ex:
+        
+                print(f"Wallet Error: {ex}")
 
         ####################################################
         # IBMB
@@ -131,19 +154,29 @@ class RetrievalService:
 
         if "ibmb" in question:
 
-            ibmb = docs.get("ibmb")
-
-            if ibmb is not None:
-
+            try:
+            
+                ibmb = self.sp.load_excel(
+            
+                    "IBMB",
+            
+                    "IBMB*.xlsx"
+            
+                )
+            
                 context["ibmb"] = {
-
+            
                     "columns": list(ibmb.columns),
-
-                    "sample": ibmb.head(50).to_dict(
+            
+                    "sample": ibmb.head(30).to_dict(
                         orient="records"
                     )
-
+            
                 }
+            
+            except Exception as ex:
+            
+                print(ex)
 
         ####################################################
         # CBS / Customer
@@ -161,19 +194,29 @@ class RetrievalService:
 
         if any(k in question for k in customer_keywords):
 
-            customer = docs.get("customer")
-
-            if customer is not None:
-
+            try:
+            
+                customer = self.sp.load_excel(
+            
+                    "CBS",
+            
+                    "Customer*.xlsx"
+            
+                )
+            
                 context["customer"] = {
-
+            
                     "columns": list(customer.columns),
-
-                    "sample": customer.head(50).to_dict(
+            
+                    "sample": customer.head(30).to_dict(
                         orient="records"
                     )
-
+            
                 }
+            
+            except Exception as ex:
+            
+                print(ex)
 
         ####################################################
         # Campaign
@@ -181,19 +224,29 @@ class RetrievalService:
 
         if "campaign" in question:
 
-            campaign = docs.get("campaign")
-
-            if campaign is not None:
-
+            try:
+            
+                campaign = self.sp.load_excel(
+            
+                    "Campaign",
+            
+                    "Campaign*.xlsx"
+            
+                )
+            
                 context["campaign"] = {
-
+            
                     "columns": list(campaign.columns),
-
-                    "sample": campaign.head(50).to_dict(
+            
+                    "sample": campaign.head(30).to_dict(
                         orient="records"
                     )
-
+            
                 }
+            
+            except Exception as ex:
+            
+                print(ex)
 
         ####################################################
         # Facebook
@@ -201,10 +254,19 @@ class RetrievalService:
 
         if "facebook" in question:
 
-            context["facebook"] = docs.get(
-                "facebook",
-                []
-            )
+            try:
+            
+                context["facebook"] = self.sp.load_json(
+            
+                    "Facebook",
+            
+                    "Facebook*.json"
+            
+                )
+            
+            except Exception:
+            
+                pass
 
         ####################################################
         # Play Store
@@ -212,9 +274,18 @@ class RetrievalService:
 
         if "review" in question or "play" in question:
 
-            context["playstore"] = docs.get(
-                "playstore",
-                []
-            )
+            try:
+            
+                context["playstore"] = self.sp.load_json(
+            
+                    "PlayStore",
+            
+                    "PlayStore*.json"
+            
+                )
+            
+            except Exception:
+            
+                pass
 
         return context
