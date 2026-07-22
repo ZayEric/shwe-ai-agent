@@ -354,52 +354,75 @@ Competitor Summary
     # Save Output
     ###########################################################
 
-    def _save_output(self, response):
+def _save_output(self, response):
 
-        logger.info("Saving insight.json...")
+    logger.info("Saving insight.json...")
+
+    try:
+
+        logger.info("OUTPUT_FILE = %s", OUTPUT_FILE)
+
+        logger.info(
+            "Directory = %s",
+            os.path.dirname(OUTPUT_FILE)
+        )
+
         os.makedirs(
             os.path.dirname(OUTPUT_FILE),
             exist_ok=True
         )
-        print(os.getcwd())
-        print(OUTPUT_FILE)
 
-        print("Current directory:", os.getcwd())
-        print("Absolute path:", os.path.abspath(OUTPUT_FILE))
-        
+        logger.info("Directory created.")
+
+        logger.info("Current directory: %s", os.getcwd())
+
+        logger.info("Absolute path: %s", OUTPUT_FILE)
+
         if isinstance(response, str):
 
             try:
                 response = json.loads(response)
 
             except Exception:
+
                 response = {
-
                     "raw_response": response
-
                 }
 
+        logger.info("Response type: %s", type(response))
+
         with open(
-
             OUTPUT_FILE,
-
             "w",
-
             encoding="utf-8"
-
         ) as f:
 
             json.dump(
-
                 response,
-
                 f,
-
                 indent=4,
-
                 ensure_ascii=False
-
             )
+
+        logger.info("File written.")
+
+        logger.info(
+            "Exists: %s",
+            os.path.exists(OUTPUT_FILE)
+        )
+
+        if os.path.exists(OUTPUT_FILE):
+
+            logger.info(
+                "File size: %s bytes",
+                os.path.getsize(OUTPUT_FILE)
+            )
+
+    except Exception:
+
+        logger.exception("SAVE ERROR")
+
+        raise
 
     ###########################################################
     # Load Output
