@@ -8,6 +8,7 @@ from services.competitor_service import CompetitorService
 from services.wallet_service import WalletService
 from services.ibmb_service import IBMBService
 from services.openai_service import generate_customer_insight
+from services.retrieval_service import RetrievalService
 
 import logging
 
@@ -181,25 +182,50 @@ class CustomerInsightService:
     ###########################################################
 
     def ask(self, question):
-        insight = self._load_output()
-        system_prompt = (
-            "You are an executive banking advisor. "
-            "Answer using ONLY the supplied insight JSON."
-        )
-
+    
+        retriever = RetrievalService()
+    
+        retrieved_documents = retriever.retrieve(question)
+    
+        system_prompt = """
+    You are the Digital Banking Executive Advisor.
+    
+    Answer ONLY using the supplied documents.
+    
+    If competitor markdown is provided,
+    compare products, services and campaigns.
+    
+    If Wallet or IBMB data is provided,
+    analyse usage.
+    
+    If CBS customer data is provided,
+    analyse customer behaviour.
+    
+    Do not invent facts.
+    """
+    
         user_prompt = f"""
-Insight
-
-{json.dumps(insight, indent=2, ensure_ascii=False)}
-
-Question
-
-{question}
-"""
-
+    
+    Question
+    
+    {question}
+    
+    Relevant Documents
+    
+    {json.dumps(
+        retrieved_documents,
+        indent=2,
+        ensure_ascii=False
+    )}
+    
+    """
+    
         return generate_customer_insight(
+    
             system_prompt=system_prompt,
+    
             user_prompt=user_prompt
+    
         )
 
     ###########################################################
