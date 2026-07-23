@@ -1,8 +1,13 @@
+import logging
+import time
 import pandas as pd
 
-from config import *
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from config import *
 from services.customer_sharepoint_service import CustomerSharePointService
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentLoader:
@@ -31,127 +36,94 @@ class DocumentLoader:
     ##########################################################
 
     def load_all(self):
-
-        return {
-
-            ##################################################
-            # Facebook
-            ##################################################
-
-            "facebook": self._safe_load(
-
-                lambda: self.sp.load_json(
-
-                    FACEBOOK_FOLDER,
-
-                    FACEBOOK_PATTERN
-
-                ),
-
-                []
-
+    
+        jobs = {
+    
+            "facebook": lambda: self.sp.load_json(
+                FACEBOOK_FOLDER,
+                FACEBOOK_PATTERN
             ),
-
-            ##################################################
-            # Play Store
-            ##################################################
-
-            "playstore": self._safe_load(
-
-                lambda: self.sp.load_json(
-
-                    PLAYSTORE_FOLDER,
-
-                    PLAYSTORE_PATTERN
-
-                ),
-
-                []
-
+    
+            "playstore": lambda: self.sp.load_json(
+                PLAYSTORE_FOLDER,
+                PLAYSTORE_PATTERN
             ),
-
-            ##################################################
-            # Competitors
-            ##################################################
-
-            "competitor": self._safe_load(
-
-                lambda: self.sp.load_competitors(),
-
-                {}
-
+    
+            "competitor": lambda: self.sp.load_competitors(),
+    
+            "wallet": lambda: self.sp.load_excel(
+                WALLET_FOLDER,
+                WALLET_PATTERN
             ),
-
-            ##################################################
-            # Wallet
-            ##################################################
-
-            "wallet": self._safe_load(
-
-                lambda: self.sp.load_excel(
-
-                    WALLET_FOLDER,
-
-                    WALLET_PATTERN
-
-                ),
-
-                pd.DataFrame()
-
+    
+            "ibmb": lambda: self.sp.load_excel(
+                IBMB_FOLDER,
+                IBMB_PATTERN
             ),
-
-            ##################################################
-            # IBMB
-            ##################################################
-
-            "ibmb": self._safe_load(
-
-                lambda: self.sp.load_excel(
-
-                    IBMB_FOLDER,
-
-                    IBMB_PATTERN
-
-                ),
-
-                pd.DataFrame()
-
+    
+            "campaign": lambda: self.sp.load_excel(
+                CAMPAIGN_FOLDER,
+                CAMPAIGN_PATTERN
             ),
-
-            ##################################################
-            # Campaign
-            ##################################################
-
-            "campaign": self._safe_load(
-
-                lambda: self.sp.load_excel(
-
-                    CAMPAIGN_FOLDER,
-
-                    CAMPAIGN_PATTERN
-
-                ),
-
-                pd.DataFrame()
-
-            ),
-
-            ##################################################
-            # Customer
-            ##################################################
-
-            "customer": self._safe_load(
-
-                lambda: self.sp.load_excel(
-
-                    CUSTOMER_FOLDER,
-
-                    CUSTOMER_PATTERN
-
-                ),
-
-                pd.DataFrame()
-
+    
+            "customer": lambda: self.sp.load_excel(
+                CUSTOMER_FOLDER,
+                CUSTOMER_PATTERN
             )
-
         }
+    
+        defaults = {
+    
+            "facebook": [],
+            "playstore": [],
+            "competitor": {},
+            "wallet": pd.DataFrame(),
+            "ibmb": pd.DataFrame(),
+            "campaign": pd.DataFrame(),
+            "customer": pd.DataFrame()
+        }
+    
+        results = {}
+    
+        start_all = time.time()
+    
+        with ThreadPoolExecutor(max_workers=7) as executor:
+    
+            future_map = {}
+    
+            for name, loader in jobs.items():
+    
+                future = executor.submit(self._safe_load, loader, defaults[name])
+    
+                future_map[future] = (name, time.time())
+    
+            for future in as_completed(future_map):
+    
+                name, start = future_map[future]
+    
+                try:
+    
+                    results[name] = future.result()
+    
+                    logger.info(
+                        "%s loaded in %.2f sec",
+                        name,
+                        time.time() - start
+                    )
+    
+                except Exception as e:
+    
+                    logger.exception(
+                        "%s failed : %s",
+                        name,
+                        e
+                    )
+    
+                    results[name] = defaults[name]
+    
+        logger.info(
+            "All documents loaded in %.2f sec",
+            time.time() - start_all
+        )
+    
+        return results
