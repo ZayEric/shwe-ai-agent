@@ -9,6 +9,7 @@ from services.wallet_service import WalletService
 from services.ibmb_service import IBMBService
 from services.openai_service import generate_customer_insight
 from services.retrieval_service import RetrievalService
+from services.dashboard_service import DashboardService
 
 import logging
 
