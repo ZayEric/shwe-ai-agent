@@ -1,6 +1,7 @@
 import json
 import requests
 import pandas as pd
+import time
 
 from io import BytesIO
 from fnmatch import fnmatch
@@ -32,7 +33,8 @@ class CustomerSharePointService:
 
         response = requests.get(
             url,
-            headers=self.headers
+            headers=self.headers,
+            timeout=60
         )
 
         response.raise_for_status()
@@ -44,43 +46,52 @@ class CustomerSharePointService:
     ##########################################################
 
     def _download_latest_file(self, folder, pattern):
-
+    
+        start = time.time()
+    
         full_path = f"{CUSTOMER_ROOT_FOLDER}/{folder}"
-
+    
+        print(f"Listing folder: {full_path}")
+    
         files = self._list_folder(full_path)
-
+    
+        print(
+            f"List completed in {time.time()-start:.2f}s"
+        )
+    
         matched = [
-
             f for f in files
-
             if fnmatch(f["name"], pattern)
-
         ]
-
+    
         if len(matched) == 0:
-
             raise Exception(
                 f"No file found : {folder}/{pattern}"
             )
-
+    
         latest = sorted(
-
             matched,
-
             key=lambda x: x["lastModifiedDateTime"],
-
             reverse=True
-
         )[0]
-
-        print(f"Downloading {folder}/{latest['name']}")
-
-        response = requests.get(
-            latest["@microsoft.graph.downloadUrl"]
+    
+        print(
+            f"Downloading {latest['name']}"
         )
-
+    
+        start = time.time()
+    
+        response = requests.get(
+            latest["@microsoft.graph.downloadUrl"],
+            timeout=60
+        )
+    
         response.raise_for_status()
-
+    
+        print(
+            f"Download completed in {time.time()-start:.2f}s"
+        )
+    
         return latest["name"], response.content
 
     ##########################################################
@@ -175,7 +186,8 @@ class CustomerSharePointService:
             print(f"Loading {bank_name} : {file['name']}")
     
             response = requests.get(
-                file["@microsoft.graph.downloadUrl"]
+                file["@microsoft.graph.downloadUrl"],
+                timeout=60
             )
     
             response.raise_for_status()
@@ -263,7 +275,8 @@ class CustomerSharePointService:
             print(f"Loading {bank_name}: {file['name']}")
     
             response = requests.get(
-                file["@microsoft.graph.downloadUrl"]
+                file["@microsoft.graph.downloadUrl"],
+                timeout=60
             )
     
             response.raise_for_status()
