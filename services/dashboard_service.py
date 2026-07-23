@@ -13,9 +13,7 @@ class DashboardService:
 
         self.loader = DocumentLoader()
 
-    def generate_dashboard(self):
-
-        documents = self.loader.load_all()
+    def generate_dashboard(self, documents):
 
         prompt = Path(
             "prompts/dashboard_prompt.txt"
