@@ -1,6 +1,6 @@
 from services.openai_service import generate_customer_insight
-
 from services.document_loader import DocumentLoader
+from services.dashboard_service import DashboardService
 
 from pathlib import Path
 
