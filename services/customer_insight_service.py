@@ -54,8 +54,15 @@ class CustomerInsightService:
     ###########################################################
 
     def analyze(self):
-        documents = self.loader.load_all()
-        dashboard = DashboardService().generate_dashboard(documents)
+        dashboard = DashboardService().generate_dashboard(
+            facebook_summary,
+            wallet_summary,
+            ibmb_summary,
+            customer_summary,
+            campaign_summary,
+            competitor_summary,
+            playstore_summary
+        )
         print("=" * 80)
         logger.info("DOCUMENTS")
         print(documents.keys())
