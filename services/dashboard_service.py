@@ -1,55 +1,97 @@
-from services.openai_service import generate_customer_insight
-from pathlib import Path
-
 import json
 import logging
+from pathlib import Path
+
+from services.openai_service import generate_customer_insight
+
 logger = logging.getLogger(__name__)
+
+BASE_DIR = Path(__file__).resolve().parent
+
+PROMPT_FILE = (
+    BASE_DIR.parent
+    / "prompts"
+    / "dashboard_prompt.txt"
+)
+
 
 class DashboardService:
 
-    def __init__(self):
+    def generate_dashboard(
+        self,
+        facebook_summary,
+        wallet_summary,
+        ibmb_summary,
+        customer_summary,
+        campaign_summary,
+        competitor_summary,
+        playstore_summary
+    ):
 
-        self.loader = DocumentLoader()
-
-    def generate_dashboard(self, documents):
+        logger.info("=" * 80)
         logger.info("DashboardService started")
-        
-        prompt = Path(
-            "prompts/dashboard_prompt.txt"
-        ).read_text(
+
+        with open(
+            PROMPT_FILE,
+            "r",
             encoding="utf-8"
-        )
-        logger.info("Prompt loaded")
+        ) as f:
+            system_prompt = f.read()
+
+        logger.info("Dashboard prompt loaded")
 
         user_prompt = f"""
+Facebook Summary
+{json.dumps(facebook_summary, indent=2, ensure_ascii=False)}
 
-        Facebook Summary
-        
-        {facebook_summary}
-        
-        Wallet Summary
-        
-        {wallet_summary}
-        
-        IBMB Summary
-        
-        {ibmb_summary}
-        
-        Campaign Summary
-        
-        {campaign_summary}
-        
-        Competitor Summary
-        
-        {competitor_summary}
-        """
-        logger.info("Prompt size = %s", len(user_prompt))
-        dashboard = generate_customer_insight(
+--------------------------------------------------------
 
-            system_prompt=prompt,
+Play Store Summary
+{json.dumps(playstore_summary, indent=2, ensure_ascii=False)}
 
-            user_prompt=user_prompt
+--------------------------------------------------------
 
+Wallet Summary
+{json.dumps(wallet_summary, indent=2, ensure_ascii=False)}
+
+--------------------------------------------------------
+
+IBMB Summary
+{json.dumps(ibmb_summary, indent=2, ensure_ascii=False)}
+
+--------------------------------------------------------
+
+Customer Summary
+{json.dumps(customer_summary, indent=2, ensure_ascii=False)}
+
+--------------------------------------------------------
+
+Campaign Summary
+{json.dumps(campaign_summary, indent=2, ensure_ascii=False)}
+
+--------------------------------------------------------
+
+Competitor Summary
+{json.dumps(competitor_summary, indent=2, ensure_ascii=False)}
+"""
+
+        logger.info(
+            "Dashboard Prompt Size = %s characters",
+            len(user_prompt)
         )
-        logger.info("Dashboard generated")
+
+        dashboard = generate_customer_insight(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt
+        )
+
+        if isinstance(dashboard, str):
+            try:
+                dashboard = json.loads(dashboard)
+            except Exception:
+                logger.exception("Dashboard JSON Parse Error")
+                dashboard = {}
+
+        logger.info("Dashboard generated successfully")
+
         return dashboard
