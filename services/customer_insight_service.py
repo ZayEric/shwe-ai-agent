@@ -54,6 +54,7 @@ class CustomerInsightService:
 
     def analyze(self):
         documents = self.loader.load_all()
+        dashboard = DashboardService().generate_dashboard(documents)
         print("=" * 80)
         logger.info("DOCUMENTS")
         print(documents.keys())
@@ -162,6 +163,18 @@ class CustomerInsightService:
             system_prompt=system_prompt,
             user_prompt=user_prompt
         )
+
+        # Convert string response to JSON if needed
+        if isinstance(response, str):
+            try:
+                response = json.loads(response)
+            except Exception:
+                response = {
+                    "executive_summary": response
+                }
+        
+        # Merge dashboard into insight.json
+        response["executive_dashboard"] = dashboard
 
         ##################################################
         # Save Output
