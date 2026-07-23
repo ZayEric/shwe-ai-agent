@@ -54,6 +54,92 @@ class CustomerInsightService:
     ###########################################################
 
     def analyze(self):
+    
+        logger.info("=" * 80)
+        logger.info("Loading documents...")
+    
+        documents = self.loader.load_all()
+    
+        logger.info("Documents loaded")
+        logger.info("Document Keys: %s", list(documents.keys()))
+    
+        ##################################################
+        # Facebook
+        ##################################################
+    
+        facebook_summary = {}
+        facebook = documents.get("facebook", [])
+    
+        if len(facebook) > 0:
+            facebook_summary = FacebookService(
+                facebook
+            ).summarize()
+    
+        ##################################################
+        # Competitor
+        ##################################################
+    
+        competitor_summary = CompetitorService(
+            documents.get("competitor", {})
+        ).summarize()
+    
+        ##################################################
+        # Wallet
+        ##################################################
+    
+        wallet_summary = {}
+    
+        wallet_df = documents.get("wallet")
+    
+        if wallet_df is not None and not wallet_df.empty:
+            wallet_summary = WalletService(
+                wallet_df
+            ).summarize()
+    
+        ##################################################
+        # IBMB
+        ##################################################
+    
+        ibmb_summary = {}
+    
+        ibmb_df = documents.get("ibmb")
+    
+        if ibmb_df is not None and not ibmb_df.empty:
+            ibmb_summary = IBMBService(
+                ibmb_df
+            ).summarize()
+    
+        ##################################################
+        # Customer
+        ##################################################
+    
+        customer_summary = self._customer_summary(
+            documents.get("customer")
+        )
+    
+        ##################################################
+        # Campaign
+        ##################################################
+    
+        campaign_summary = self._campaign_summary(
+            documents.get("campaign")
+        )
+    
+        ##################################################
+        # Play Store
+        ##################################################
+    
+        playstore_summary = documents.get(
+            "playstore",
+            []
+        )
+    
+        ##################################################
+        # Executive Dashboard
+        ##################################################
+    
+        logger.info("Generating Executive Dashboard...")
+    
         dashboard = DashboardService().generate_dashboard(
             facebook_summary,
             wallet_summary,
@@ -63,91 +149,15 @@ class CustomerInsightService:
             competitor_summary,
             playstore_summary
         )
-        print("=" * 80)
-        logger.info("DOCUMENTS")
-        print(documents.keys())
-        print("=" * 80)
+    
+        logger.info("Executive Dashboard completed")
+    
         ##################################################
-        # Facebook
+        # Customer Insight
         ##################################################
-
-        facebook_summary = {}
-        facebook = documents.get("facebook", [])
-        
-        if len(facebook) > 0:
-       
-            facebook_summary = FacebookService(
-                facebook
-            ).summarize()
-
-        ##################################################
-        # Competitor
-        ##################################################
-
-        competitor_summary = CompetitorService(
-            documents.get("competitor", {})
-        ).summarize()
-
-        #print("=" * 80)
-        #print("COMPETITOR SUMMARY")
-        #print(json.dumps(competitor_summary, indent=2, ensure_ascii=False))
-        #print("=" * 80)
-
-        ##################################################
-        # Wallet
-        ##################################################
-
-        wallet_summary = {}
-        wallet_df = documents.get("wallet")
-
-        if wallet_df is not None and not wallet_df.empty:
-            wallet_summary = WalletService(
-                wallet_df
-            ).summarize()
-
-        ##################################################
-        # IBMB
-        ##################################################
-
-        ibmb_summary = {}
-        ibmb_df = documents.get("ibmb")
-        if ibmb_df is not None and not ibmb_df.empty:
-
-            ibmb_summary = IBMBService(
-                ibmb_df
-            ).summarize()
-
-        ##################################################
-        # Customer
-        ##################################################
-
-        customer_summary = self._customer_summary(
-            documents.get("customer")
-        )
-
-        ##################################################
-        # Campaign
-        ##################################################
-
-        campaign_summary = self._campaign_summary(
-            documents.get("campaign")
-        )
-
-        ##################################################
-        # Play Store
-        ##################################################
-
-        playstore_summary = documents.get(
-            "playstore",
-            []
-        )
-
-        ##################################################
-        # Build Prompt
-        ##################################################
-
+    
         system_prompt = self._load_prompt()
-
+    
         user_prompt = self._build_prompt(
             facebook_summary,
             playstore_summary,
@@ -157,22 +167,17 @@ class CustomerInsightService:
             campaign_summary,
             competitor_summary
         )
-
-        ##################################################
-        # Azure OpenAI
-        ##################################################
-
-        print("=" * 80)
-        logger.info("PROMPT LENGTH: %s", len(user_prompt))
-        print(len(user_prompt))
-        print("=" * 80)
-        
+    
+        logger.info(
+            "Customer Prompt Length = %s",
+            len(user_prompt)
+        )
+    
         response = generate_customer_insight(
             system_prompt=system_prompt,
             user_prompt=user_prompt
         )
-
-        # Convert string response to JSON if needed
+    
         if isinstance(response, str):
             try:
                 response = json.loads(response)
@@ -180,16 +185,21 @@ class CustomerInsightService:
                 response = {
                     "executive_summary": response
                 }
-        
-        # Merge dashboard into insight.json
+    
+        ##################################################
+        # Merge Dashboard
+        ##################################################
+    
         response["executive_dashboard"] = dashboard
-
+    
         ##################################################
-        # Save Output
+        # Save
         ##################################################
-
+    
         self._save_output(response)
-
+    
+        logger.info("Customer Insight completed.")
+    
         return response
     ###########################################################
     # Read Existing Result
