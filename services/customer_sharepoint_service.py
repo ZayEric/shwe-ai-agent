@@ -2,6 +2,7 @@ import json
 import requests
 import pandas as pd
 import time
+import logging
 
 from io import BytesIO
 from fnmatch import fnmatch
@@ -9,6 +10,7 @@ from fnmatch import fnmatch
 from services.auth_service import get_graph_token
 from config import *
 
+logger = logging.getLogger(__name__)
 
 class CustomerSharePointService:
 
@@ -99,15 +101,47 @@ class CustomerSharePointService:
     ##########################################################
 
     def load_excel(self, folder, pattern):
-
-        _, content = self._download_latest_file(
+    
+        # Measure download time
+        start_download = time.time()
+    
+        filename, content = self._download_latest_file(
             folder,
             pattern
         )
-
-        return pd.read_excel(
+    
+        download_time = time.time() - start_download
+    
+        logger.info(
+            "%s downloaded in %.2f sec (%.2f MB)",
+            filename,
+            download_time,
+            len(content) / 1024 / 1024
+        )
+    
+        # Measure Excel parsing time
+        start_parse = time.time()
+    
+        df = pd.read_excel(
             BytesIO(content)
         )
+    
+        parse_time = time.time() - start_parse
+    
+        logger.info(
+            "%s parsed in %.2f sec",
+            filename,
+            parse_time
+        )
+    
+        logger.info(
+            "%s rows=%d cols=%d",
+            filename,
+            len(df),
+            len(df.columns)
+        )
+    
+        return df
 
     ##########################################################
     # JSON
