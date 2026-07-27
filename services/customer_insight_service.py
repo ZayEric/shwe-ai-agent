@@ -187,6 +187,7 @@ class CustomerInsightService:
             "Customer Prompt Length = %s",
             len(user_prompt)
         )
+        logger.info(user_prompt)
     
         response = generate_customer_insight(
             system_prompt=system_prompt,
