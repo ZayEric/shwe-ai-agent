@@ -10,6 +10,7 @@ from services.ibmb_service import IBMBService
 from services.openai_service import generate_customer_insight
 from services.retrieval_service import RetrievalService
 from services.dashboard_service import DashboardService
+from services.customer_service import CustomerService
 
 import logging
 
@@ -113,9 +114,15 @@ class CustomerInsightService:
         # Customer
         ##################################################
     
-        customer_summary = self._customer_summary(
-            documents.get("customer")
-        )
+        customer_df = documents.get("customer")
+        
+        customer_summary = {}
+        
+        if customer_df is not None and not customer_df.empty:
+        
+            customer_summary = CustomerService(
+                customer_df
+            ).summarize()
     
         ##################################################
         # Campaign
@@ -383,21 +390,6 @@ Competitor Summary
 
 """
 
-    ###########################################################
-    # Customer Summary
-    ###########################################################
-
-    def _customer_summary(self, df):
-        if df is None or df.empty:
-            return {}
-        return {
-
-            "total_customers": len(df),
-            "columns": list(df.columns),
-            "sample": df.head(20).to_dict(
-                orient="records"
-            )
-        }
 
     ###########################################################
     # Campaign Summary
