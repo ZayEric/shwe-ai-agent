@@ -141,22 +141,28 @@ class CustomerService:
     ##########################################################
 
     def onboarding_trend(self):
-
+    
         if "onboarded_date" not in self.df.columns:
             return {}
-
+    
         df = self.df.copy()
-
+    
         df["onboarded_date"] = pd.to_datetime(
             df["onboarded_date"],
             errors="coerce"
         )
-
-        return (
+    
+        result = (
             df.groupby(
                 df["onboarded_date"].dt.to_period("M")
             )
             .size()
-            .astype(int)
-            .to_dict()
         )
+    
+        return {
+    
+            str(period): int(count)
+    
+            for period, count in result.items()
+    
+        }
