@@ -137,7 +137,15 @@ class CustomerInsightService:
         ##################################################
         # Executive Dashboard
         ##################################################
-    
+
+        logger.info("========== SUMMARY SIZES ==========")
+        logger.info("facebook_summary : %s", len(json.dumps(facebook_summary)))
+        logger.info("wallet_summary : %s", len(json.dumps(wallet_summary)))
+        logger.info("ibmb_summary : %s", len(json.dumps(ibmb_summary)))
+        logger.info("customer_summary : %s", len(json.dumps(customer_summary)))
+        logger.info("campaign_summary : %s", len(json.dumps(campaign_summary)))
+        logger.info("competitor_summary : %s", len(json.dumps(competitor_summary)))
+        logger.info("playstore_summary : %s", len(json.dumps(playstore_summary)))
         logger.info("Generating Executive Dashboard...")
     
         dashboard = DashboardService().generate_dashboard(
