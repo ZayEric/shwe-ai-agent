@@ -10,122 +10,179 @@ class WalletService:
 
         self.df = wallet_df
 
-    ############################################################
+    ##########################################################
     # Public
-    ############################################################
+    ##########################################################
 
     def summarize(self):
 
         if self.df.empty:
-            return {"message": "No Wallet data found."}
+            return {
+                "message": "No Wallet transaction data found."
+            }
 
         return {
 
-            "total_records": len(self.df),
+            "total_transactions": len(self.df),
 
-            "total_customers": self.total_customers(),
+            "total_amount": self.total_amount(),
 
-            "active_customers": self.active_customers(),
+            "average_amount": self.average_amount(),
 
-            "transaction_summary": self.transaction_summary(),
+            "max_amount": self.max_amount(),
 
-            "channel_summary": self.channel_summary(),
+            "transaction_status": self.transaction_status(),
 
-            "top_regions": self.top_regions(),
+            "transaction_types": self.transaction_types(),
 
-            "top_products": self.top_products()
+            "top_services": self.top_services(),
+
+            "sender_clients": self.sender_clients(),
+
+            "receiver_clients": self.receiver_clients(),
+
+            "top_senders": self.top_senders(),
+
+            "top_receivers": self.top_receivers()
 
         }
 
-    ############################################################
-    # Customers
-    ############################################################
+    ##########################################################
+    # Amount
+    ##########################################################
 
-    def total_customers(self):
+    def total_amount(self):
 
-        if "CustomerID" not in self.df.columns:
-            return None
+        if "TransactionAmount" not in self.df.columns:
+            return 0
 
-        return int(self.df["CustomerID"].nunique())
+        return float(self.df["TransactionAmount"].sum())
 
-    def active_customers(self):
+    def average_amount(self):
 
-        if "Status" not in self.df.columns:
-            return None
+        if "TransactionAmount" not in self.df.columns:
+            return 0
 
-        return int(
-            self.df[
-                self.df["Status"].str.upper() == "ACTIVE"
-            ].shape[0]
-        )
+        return float(self.df["TransactionAmount"].mean())
 
-    ############################################################
-    # Transaction Summary
-    ############################################################
+    def max_amount(self):
 
-    def transaction_summary(self):
+        if "TransactionAmount" not in self.df.columns:
+            return 0
 
-        result = {}
+        return float(self.df["TransactionAmount"].max())
 
-        if "TransactionAmount" in self.df.columns:
+    ##########################################################
+    # Transaction Status
+    ##########################################################
 
-            result["total_amount"] = float(
-                self.df["TransactionAmount"].sum()
-            )
+    def transaction_status(self):
 
-            result["average_amount"] = float(
-                self.df["TransactionAmount"].mean()
-            )
-
-            result["max_amount"] = float(
-                self.df["TransactionAmount"].max()
-            )
-
-        return result
-
-    ############################################################
-    # Channel Summary
-    ############################################################
-
-    def channel_summary(self):
-
-        if "Channel" not in self.df.columns:
+        if "transaction_status" not in self.df.columns:
             return {}
 
         return (
-            self.df["Channel"]
+            self.df["transaction_status"]
+            .fillna("Unknown")
             .value_counts()
             .to_dict()
         )
 
-    ############################################################
-    # Region Summary
-    ############################################################
+    ##########################################################
+    # Transaction Type
+    ##########################################################
 
-    def top_regions(self, top=10):
+    def transaction_types(self):
 
-        if "Region" not in self.df.columns:
+        if "transaction_type" not in self.df.columns:
             return {}
 
         return (
-            self.df["Region"]
+            self.df["transaction_type"]
+            .fillna("Unknown")
             .value_counts()
-            .head(top)
             .to_dict()
         )
 
-    ############################################################
-    # Product Summary
-    ############################################################
+    ##########################################################
+    # Service
+    ##########################################################
 
-    def top_products(self, top=10):
+    def top_services(self):
 
-        if "Product" not in self.df.columns:
+        if "service_name" not in self.df.columns:
             return {}
 
         return (
-            self.df["Product"]
+            self.df["service_name"]
+            .fillna("Unknown")
             .value_counts()
-            .head(top)
+            .head(10)
+            .to_dict()
+        )
+
+    ##########################################################
+    # Sender Client
+    ##########################################################
+
+    def sender_clients(self):
+
+        if "sender_client" not in self.df.columns:
+            return {}
+
+        return (
+            self.df["sender_client"]
+            .fillna("Unknown")
+            .value_counts()
+            .to_dict()
+        )
+
+    ##########################################################
+    # Receiver Client
+    ##########################################################
+
+    def receiver_clients(self):
+
+        if "receiver_client" not in self.df.columns:
+            return {}
+
+        return (
+            self.df["receiver_client"]
+            .fillna("Unknown")
+            .value_counts()
+            .to_dict()
+        )
+
+    ##########################################################
+    # Top Senders
+    ##########################################################
+
+    def top_senders(self):
+
+        if "sender_name" not in self.df.columns:
+            return {}
+
+        return (
+            self.df["sender_name"]
+            .fillna("Unknown")
+            .value_counts()
+            .head(10)
+            .to_dict()
+        )
+
+    ##########################################################
+    # Top Receivers
+    ##########################################################
+
+    def top_receivers(self):
+
+        if "receiver_name" not in self.df.columns:
+            return {}
+
+        return (
+            self.df["receiver_name"]
+            .fillna("Unknown")
+            .value_counts()
+            .head(10)
             .to_dict()
         )
