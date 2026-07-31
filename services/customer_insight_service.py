@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+import pandas as pd
 
 from services.document_loader import DocumentLoader
 from services.facebook_service import FacebookService
@@ -60,6 +61,34 @@ class CustomerInsightService:
         logger.info("Loading documents...")
     
         documents = self.loader.load_all()
+
+        for name, value in documents.items():
+        
+            if isinstance(value, pd.DataFrame):
+        
+                logger.info(
+                    "%s -> empty=%s rows=%d cols=%d",
+                    name,
+                    value.empty,
+                    len(value),
+                    len(value.columns)
+                )
+        
+            elif isinstance(value, dict):
+        
+                logger.info(
+                    "%s -> dict size=%d",
+                    name,
+                    len(value)
+                )
+        
+            elif isinstance(value, list):
+        
+                logger.info(
+                    "%s -> list size=%d",
+                    name,
+                    len(value)
+                )
     
         logger.info("Documents loaded")
         logger.info("Document Keys: %s", list(documents.keys()))
