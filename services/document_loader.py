@@ -20,15 +20,15 @@ class DocumentLoader:
     # Safe Loader
     ##########################################################
 
-    def _safe_load(self, loader, default):
-
+    def _safe_load(self, name, loader, default):
+    
         try:
             return loader()
-
-        except Exception as e:
-
-            print(f"Warning: {e}")
-
+    
+        except Exception:
+    
+            logger.exception("%s loading failed", name)
+    
             return default
 
     ##########################################################
@@ -93,7 +93,12 @@ class DocumentLoader:
     
             for name, loader in jobs.items():
     
-                future = executor.submit(self._safe_load, loader, defaults[name])
+                future = executor.submit(
+                    self._safe_load,
+                    name,
+                    loader,
+                    defaults[name]
+                )
     
                 future_map[future] = (name, time.time())
     
