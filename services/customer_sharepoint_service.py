@@ -171,7 +171,7 @@ class CustomerSharePointService:
 
         return content.decode("utf-8")
 
-
+   
     ##########################################################
     # Get Competitor Banks
     ##########################################################
@@ -196,6 +196,28 @@ class CustomerSharePointService:
     
         ]
 
+    ##########################################################
+    # Load All Competitors
+    ##########################################################
+    
+    def load_competitors(self):
+    
+        competitors = {}
+    
+        for bank in self.get_competitor_banks():
+    
+            try:
+    
+                competitors[bank] = self.load_competitor(bank)
+    
+            except Exception:
+    
+                logger.exception(
+                    "Failed loading competitor %s",
+                    bank
+                )
+    
+        return competitors
     ##########################################################
     # Load One Competitor
     ##########################################################
