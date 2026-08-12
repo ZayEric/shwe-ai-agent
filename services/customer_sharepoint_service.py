@@ -144,6 +144,49 @@ class CustomerSharePointService:
         return df
 
     ##########################################################
+    # CSV
+    ##########################################################
+    
+    def load_csv(self, folder, pattern, usecols=None):
+    
+        start_download = time.time()
+    
+        filename, content = self._download_latest_file(
+            folder,
+            pattern
+        )
+    
+        logger.info(
+            "%s downloaded in %.2f sec (%.2f MB)",
+            filename,
+            time.time() - start_download,
+            len(content) / 1024 / 1024
+        )
+    
+        start_parse = time.time()
+    
+        df = pd.read_csv(
+            BytesIO(content),
+            encoding="utf-8-sig",
+            usecols=usecols
+        )
+    
+        logger.info(
+            "%s parsed in %.2f sec",
+            filename,
+            time.time() - start_parse
+        )
+    
+        logger.info(
+            "%s rows=%d cols=%d",
+            filename,
+            len(df),
+            len(df.columns)
+        )
+    
+        return df
+
+    ##########################################################
     # JSON
     ##########################################################
 
