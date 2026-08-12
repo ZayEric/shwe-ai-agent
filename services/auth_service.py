@@ -13,6 +13,10 @@ def get_graph_token():
     }
 
     print("Getting Graph token...")
+    print("Tenant:", TENANT_ID)
+    print("Client:", CLIENT_ID)
+    
+    print("Token URL:", url)
     response = requests.post(url, data=data)
 
     print(response.text)
