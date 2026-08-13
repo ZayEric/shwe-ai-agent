@@ -55,6 +55,21 @@ class DocumentLoader:
                 WALLET_FOLDER,
                 WALLET_PATTERN
             ),
+            "wallet": lambda: self.sp.load_csv(
+                WALLET_FOLDER,
+                "Wallet Transaction.csv",
+                usecols=[
+                    "service_name",
+                    "transaction_type",
+                    "sender_phone",
+                    "receiver_phone',
+                    "transaction_status",
+                    "processedby_ph",
+                    "processedby_client",
+                    "transaction_date",
+                    "transaction_amount"
+                ]
+            )
     
             "ibmb": lambda: self.sp.load_excel(
                 IBMB_FOLDER,
