@@ -51,10 +51,6 @@ class DocumentLoader:
     
             "competitor": lambda: self.sp.load_competitors(),
     
-            "wallet": lambda: self.sp.load_excel(
-                WALLET_FOLDER,
-                WALLET_PATTERN
-            ),
             "wallet": lambda: self.sp.load_csv(
                 WALLET_FOLDER,
                 "Wallet Transaction.csv",
