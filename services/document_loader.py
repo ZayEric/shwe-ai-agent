@@ -104,7 +104,7 @@ class DocumentLoader:
     
         start_all = time.time()
     
-        with ThreadPoolExecutor(max_workers=7) as executor:
+        with ThreadPoolExecutor(max_workers=8) as executor:
     
             future_map = {}
     
