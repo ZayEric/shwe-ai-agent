@@ -51,9 +51,14 @@ class DocumentLoader:
     
             "competitor": lambda: self.sp.load_competitors(),
     
-            "wallet": lambda: self.sp.load_csv(
+            "wallet_customer": lambda: self.sp.load_excel(
                 WALLET_FOLDER,
-                "Wallet Transaction.csv",
+                WALLET_CUSTOMER_PATTERN
+            ),
+            
+            "wallet_transaction": lambda: self.sp.load_csv(
+                WALLET_FOLDER,
+                WALLET_TRANSACTION_PATTERN,
                 usecols=[
                     "service_name",
                     "transaction_type",
@@ -84,11 +89,12 @@ class DocumentLoader:
         }
     
         defaults = {
-    
+        
             "facebook": [],
             "playstore": [],
             "competitor": {},
-            "wallet": pd.DataFrame(),
+            "wallet_customer": pd.DataFrame(),
+            "wallet_transaction": pd.DataFrame(),
             "ibmb": pd.DataFrame(),
             "campaign": pd.DataFrame(),
             "customer": pd.DataFrame()
