@@ -69,7 +69,7 @@ class DocumentLoader:
                     "transaction_date",
                     "transaction_amount"
                 ]
-            )
+            ),
     
             "ibmb": lambda: self.sp.load_excel(
                 IBMB_FOLDER,
