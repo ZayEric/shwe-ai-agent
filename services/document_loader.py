@@ -62,7 +62,7 @@ class DocumentLoader:
                     "service_name",
                     "transaction_type",
                     "sender_phone",
-                    "receiver_phone',
+                    "receiver_phone",
                     "transaction_status",
                     "processedby_ph",
                     "processedby_client",
