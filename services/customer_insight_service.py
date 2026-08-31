@@ -118,13 +118,70 @@ class CustomerInsightService:
         ##################################################
     
         wallet_summary = {}
-    
-        wallet_df = documents.get("wallet")
-    
-        if wallet_df is not None and not wallet_df.empty:
-            wallet_summary = WalletService(
-                wallet_df
+
+        ##################################################
+        # Wallet Customer
+        ##################################################
+
+        wallet_customer_summary = {}
+
+        wallet_customer_df = documents.get(
+            "wallet_customer"
+        )
+
+        if (
+            wallet_customer_df is not None
+            and not wallet_customer_df.empty
+        ):
+
+            logger.info(
+                "Processing wallet customer data: rows=%d cols=%d",
+                len(wallet_customer_df),
+                len(wallet_customer_df.columns)
+            )
+
+            wallet_customer_summary = WalletService(
+                wallet_customer_df
             ).summarize()
+
+        ##################################################
+        # Wallet Transaction
+        ##################################################
+
+        wallet_transaction_df = documents.get(
+            "wallet_transaction"
+        )
+
+        wallet_transaction_summary = {}
+
+        if (
+            wallet_transaction_df is not None
+            and not wallet_transaction_df.empty
+        ):
+
+            logger.info(
+                "Processing wallet transaction data: rows=%d cols=%d",
+                len(wallet_transaction_df),
+                len(wallet_transaction_df.columns)
+            )
+
+            wallet_transaction_summary = (
+                self._wallet_transaction_summary(
+                    wallet_transaction_df
+                )
+            )
+
+        ##################################################
+        # Combined Wallet Summary
+        ##################################################
+
+        wallet_summary = {
+
+            "customer": wallet_customer_summary,
+
+            "transactions": wallet_transaction_summary
+
+        }
     
         ##################################################
         # IBMB
@@ -246,6 +303,152 @@ class CustomerInsightService:
         logger.info("Customer Insight completed.")
     
         return response
+
+
+    ###########################################################
+    # Wallet Transaction Summary
+    ###########################################################
+
+    def _wallet_transaction_summary(self, df):
+
+        if df is None or df.empty:
+            return {}
+
+        result = {
+
+            "total_transactions": len(df),
+
+            "columns": list(df.columns)
+
+        }
+
+        ##################################################
+        # Transaction Status
+        ##################################################
+
+        if "transaction_status" in df.columns:
+
+            result["transaction_status"] = (
+                df["transaction_status"]
+                .fillna("Unknown")
+                .astype(str)
+                .str.strip()
+                .str.upper()
+                .value_counts()
+                .to_dict()
+            )
+
+        ##################################################
+        # Service
+        ##################################################
+
+        if "service_name" in df.columns:
+
+            result["transactions_by_service"] = (
+                df["service_name"]
+                .fillna("Unknown")
+                .astype(str)
+                .value_counts()
+                .head(20)
+                .to_dict()
+            )
+
+        ##################################################
+        # Transaction Type
+        ##################################################
+
+        if "transaction_type" in df.columns:
+
+            result["transactions_by_type"] = (
+                df["transaction_type"]
+                .fillna("Unknown")
+                .astype(str)
+                .value_counts()
+                .head(20)
+                .to_dict()
+            )
+
+        ##################################################
+        # Transaction Amount
+        ##################################################
+
+        if "transaction_amount" in df.columns:
+
+            amount = pd.to_numeric(
+                df["transaction_amount"],
+                errors="coerce"
+            )
+
+            result["total_transaction_amount"] = float(
+                amount.sum()
+            )
+
+            result["average_transaction_amount"] = float(
+                amount.mean()
+            ) if not amount.dropna().empty else 0
+
+            result["maximum_transaction_amount"] = float(
+                amount.max()
+            ) if not amount.dropna().empty else 0
+
+        ##################################################
+        # Transaction Date
+        ##################################################
+
+        if "transaction_date" in df.columns:
+
+            dates = pd.to_datetime(
+                df["transaction_date"],
+                errors="coerce"
+            )
+
+            monthly = (
+                df.assign(
+                    transaction_month=dates.dt.to_period("M")
+                )
+                .dropna(subset=["transaction_month"])
+                .groupby("transaction_month")
+                .size()
+            )
+
+            result["monthly_transactions"] = {
+                str(period): int(count)
+                for period, count in monthly.items()
+            }
+
+        ##################################################
+        # Successful Transaction Analysis
+        ##################################################
+
+        if (
+            "transaction_status" in df.columns
+            and "transaction_amount" in df.columns
+        ):
+
+            status = (
+                df["transaction_status"]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+                .str.upper()
+            )
+
+            amount = pd.to_numeric(
+                df["transaction_amount"],
+                errors="coerce"
+            )
+
+            successful = amount[status == "SUCCESS"]
+
+            result["successful_transactions"] = int(
+                len(successful)
+            )
+
+            result["successful_transaction_amount"] = float(
+                successful.sum()
+            )
+
+        return result
     ###########################################################
     # Read Existing Result
     ###########################################################
@@ -374,50 +577,109 @@ class CustomerInsightService:
         customer,
         campaign,
         competitor
-
     ):
 
         return f"""
 Facebook Summary
 
-{json.dumps(facebook, indent=2, ensure_ascii=False)}
+{json.dumps(
+    facebook,
+    indent=2,
+    ensure_ascii=False
+)}
 
 ------------------------------------------------------------
 
 Play Store Reviews
 
-{json.dumps(playstore, indent=2, ensure_ascii=False)}
+{json.dumps(
+    playstore,
+    indent=2,
+    ensure_ascii=False
+)}
 
 ------------------------------------------------------------
 
-Wallet Summary
+Wallet Customer Summary
 
-{json.dumps(wallet, indent=2, ensure_ascii=False)}
+{json.dumps(
+    wallet.get("customer", {}),
+    indent=2,
+    ensure_ascii=False
+)}
+
+------------------------------------------------------------
+
+Wallet Transaction Summary
+
+{json.dumps(
+    wallet.get("transactions", {}),
+    indent=2,
+    ensure_ascii=False
+)}
 
 ------------------------------------------------------------
 
 IBMB Summary
 
-{json.dumps(ibmb, indent=2, ensure_ascii=False)}
+{json.dumps(
+    ibmb,
+    indent=2,
+    ensure_ascii=False
+)}
 
 ------------------------------------------------------------
 
-Customer Summary
+CBS Customer Summary
 
-{json.dumps(customer, indent=2, ensure_ascii=False)}
+{json.dumps(
+    customer,
+    indent=2,
+    ensure_ascii=False
+)}
 
 ------------------------------------------------------------
 
 Campaign Summary
 
-{json.dumps(campaign, indent=2, ensure_ascii=False)}
+{json.dumps(
+    campaign,
+    indent=2,
+    ensure_ascii=False
+)}
 
 ------------------------------------------------------------
 
 Competitor Summary
 
-{json.dumps(competitor, indent=2, ensure_ascii=False)}
+{json.dumps(
+    competitor,
+    indent=2,
+    ensure_ascii=False
+)}
 
+------------------------------------------------------------
+
+INSTRUCTIONS
+
+Use the supplied data to identify:
+
+1. Customer segments
+2. Wallet customer behaviour
+3. Wallet transaction behaviour
+4. High-value customer opportunities
+5. Product opportunities
+6. Transaction/service usage trends
+7. Customer pain points
+8. Feature gaps
+9. Cross-sell opportunities
+10. Retention opportunities
+
+Do not invent facts.
+
+If information is unavailable, clearly state that it is unavailable.
+
+Do not expose customer phone numbers or other personally identifiable information.
 """
 
 
