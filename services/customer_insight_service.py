@@ -600,7 +600,7 @@ Play Store Reviews
 Wallet Customer Summary
 
 {json.dumps(
-    wallet.get("customer", {}),
+    wallet.get("wallet_customer", {}),
     indent=2,
     ensure_ascii=False
 )}
@@ -610,7 +610,7 @@ Wallet Customer Summary
 Wallet Transaction Summary
 
 {json.dumps(
-    wallet.get("transactions", {}),
+    wallet.get("wallet_transactions", {}),
     indent=2,
     ensure_ascii=False
 )}
