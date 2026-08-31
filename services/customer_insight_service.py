@@ -148,11 +148,11 @@ class CustomerInsightService:
         # Wallet Transaction
         ##################################################
 
+        wallet_transaction_summary = {}
+        
         wallet_transaction_df = documents.get(
             "wallet_transaction"
         )
-
-        wallet_transaction_summary = {}
 
         if (
             wallet_transaction_df is not None
@@ -177,9 +177,8 @@ class CustomerInsightService:
 
         wallet_summary = {
 
-            "customer": wallet_customer_summary,
-
-            "transactions": wallet_transaction_summary
+            "wallet_customer": wallet_customer_summary,
+            "wallet_transactions": wallet_transaction_summary
 
         }
     
@@ -310,16 +309,17 @@ class CustomerInsightService:
     ###########################################################
 
     def _wallet_transaction_summary(self, df):
-
+    
         if df is None or df.empty:
-            return {}
-
+            return {
+                "available": False,
+                "message": "No wallet transaction data available."
+            }
+    
         result = {
-
-            "total_transactions": len(df),
-
+            "available": True,
+            "total_transactions": int(len(df)),
             "columns": list(df.columns)
-
         }
 
         ##################################################
@@ -358,13 +358,12 @@ class CustomerInsightService:
         ##################################################
 
         if "transaction_type" in df.columns:
-
-            result["transactions_by_type"] = (
+    
+            result["transaction_type"] = (
                 df["transaction_type"]
                 .fillna("Unknown")
                 .astype(str)
                 .value_counts()
-                .head(20)
                 .to_dict()
             )
 
@@ -373,23 +372,21 @@ class CustomerInsightService:
         ##################################################
 
         if "transaction_amount" in df.columns:
-
+    
             amount = pd.to_numeric(
                 df["transaction_amount"],
                 errors="coerce"
-            )
-
-            result["total_transaction_amount"] = float(
-                amount.sum()
-            )
-
-            result["average_transaction_amount"] = float(
-                amount.mean()
-            ) if not amount.dropna().empty else 0
-
-            result["maximum_transaction_amount"] = float(
-                amount.max()
-            ) if not amount.dropna().empty else 0
+            ).dropna()
+    
+            if not amount.empty:
+    
+                result["transaction_amount"] = {
+                    "total": float(amount.sum()),
+                    "average": float(amount.mean()),
+                    "median": float(amount.median()),
+                    "maximum": float(amount.max()),
+                    "minimum": float(amount.min())
+                }
 
         ##################################################
         # Transaction Date
